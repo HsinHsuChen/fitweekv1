@@ -160,7 +160,23 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
 .tb-log{background:var(--blue);color:#fff;}
 .tb-mt{background:var(--red);color:#fff;}
 .tb-nav{background:var(--gold);color:#1a1612;font-weight:700;}
+.tb-mt.metro-running{animation:pulse 1s infinite;}
 .streak-badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:none;align-items:center;justify-content:center;border:2px solid var(--bg);}
+
+/* ══ CURRICULUM VIEW ══ */
+.curriculum-overlay{
+  position:fixed;
+  inset:0;
+  z-index:850;
+  background:var(--bg);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .2s ease,visibility .2s ease;
+}
+.curriculum-overlay.open{opacity:1;visibility:visible;pointer-events:auto;}
+.curriculum-frame{display:block;width:100%;height:100%;border:0;background:var(--bg);}
+body.curriculum-open{overflow:hidden;}
 
 /* ══ MODAL ══ */
 .modal-overlay{position:fixed;inset:0;background:rgba(20,14,10,0.55);backdrop-filter:blur(4px);z-index:950;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s;}
@@ -737,6 +753,16 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
 </div>
 </div>
 
+<!-- FULL-SCREEN CURRICULUM VIEW
+     Keep this inside fitness-log so the metronome's AudioContext is never unloaded. -->
+<div class="curriculum-overlay" id="curriculumOverlay" aria-hidden="true">
+  <iframe
+    class="curriculum-frame"
+    id="curriculumFrame"
+    title="三日全身課表"
+    src="about:blank"
+  ></iframe>
+</div>
 
 <!-- STICKY TOOLBAR -->
 <div class="sticky-toolbar">
@@ -746,7 +772,7 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
   </div>
   <button class="toolbar-btn tb-log" onclick="openPanel('log')" title="訓練紀錄">📋</button>
   <button class="toolbar-btn tb-mt" onclick="openPanel('metro')" title="節拍器">🥁</button>
-  <button class="toolbar-btn tb-nav" onclick="navToCurriculum()" title="查看課表">📖</button>
+  <button class="toolbar-btn tb-nav" id="curriculumNavBtn" onclick="navToCurriculum()" title="查看課表">📖</button>
 </div>
 
 <!-- ══ MAIN PANEL ══ -->
@@ -891,7 +917,7 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
           <div class="metro-tot" id="metroTotal">總拍數：0</div>
         </div>
         <button class="metro-start ms-go" id="metroBtn" onclick="toggleMetro()">▶ 開始</button>
-        <div class="metro-hint">關閉視窗後繼續運作，關掉網頁才停止</div>
+        <div class="metro-hint">關閉面板或查看課表時會繼續運作，關掉本頁才停止</div>
       </div>
     </div>
 
@@ -2048,6 +2074,11 @@ function syncMetroUI(){
   const b=document.getElementById('metroBtn'); if(!b)return;
   b.textContent=mRunning?'■ 停止':'▶ 開始';
   b.className='metro-start '+(mRunning?'ms-stop':'ms-go');
+  const quickBtn=document.querySelector('.tb-mt');
+  if(quickBtn){
+    quickBtn.classList.toggle('metro-running',mRunning);
+    quickBtn.title=mRunning?'節拍器運作中（點此控制）':'節拍器';
+  }
 }
 
 window.addEventListener('beforeunload',()=>stopMetro());
@@ -2207,17 +2238,48 @@ function copyGPTReport(){
 // NAVIGATION
 // ═══════════════════════════════════════
 function navToCurriculum(){
-  // Save metro state and timestamp before navigating
-  if(mRunning){
-    sv('metroState_'+todayStr(), {
-      running:true, 
-      beat:mBeat, 
-      total:mTotal,
-      lastSaveTime:Date.now()
-    });
+  const overlay=document.getElementById('curriculumOverlay');
+  if(overlay.classList.contains('open')){
+    closeCurriculum();
+    return;
   }
-  window.location.href='curriculum-v1.html';
+
+  const frame=document.getElementById('curriculumFrame');
+  if(frame.getAttribute('src')==='about:blank'){
+    frame.src='curriculum-v1.html?embedded=1';
+  }
+  overlay.classList.add('open');
+  overlay.setAttribute('aria-hidden','false');
+  document.body.classList.add('curriculum-open');
+
+  const btn=document.getElementById('curriculumNavBtn');
+  btn.textContent='↩';
+  btn.title='返回訓練紀錄';
 }
+
+function closeCurriculum(){
+  const overlay=document.getElementById('curriculumOverlay');
+  overlay.classList.remove('open');
+  overlay.setAttribute('aria-hidden','true');
+  document.body.classList.remove('curriculum-open');
+
+  const btn=document.getElementById('curriculumNavBtn');
+  btn.textContent='📖';
+  btn.title='查看課表';
+}
+
+window.addEventListener('message',(event)=>{
+  const frame=document.getElementById('curriculumFrame');
+  if(event.source===frame.contentWindow && event.data && event.data.type==='closeCurriculum'){
+    closeCurriculum();
+  }
+});
+
+window.addEventListener('keydown',(event)=>{
+  if(event.key==='Escape' && document.getElementById('curriculumOverlay').classList.contains('open')){
+    closeCurriculum();
+  }
+});
 
 // ═══════════════════════════════════════
 // INIT

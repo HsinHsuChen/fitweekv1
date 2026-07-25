@@ -118,6 +118,7 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
   z-index:900;
 }
 .sticky-nav-btn:hover{transform:scale(1.1);}
+body.embedded .sticky-nav-btn{display:none;}
 
 /* ANIMATION */
 @keyframes fadeIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
@@ -872,7 +873,15 @@ function switchTab(n){
 }
 
 function navToLog(){
+  if(window.parent!==window){
+    window.parent.postMessage({type:'closeCurriculum'},'*');
+    return;
+  }
   window.location.href='fitness-log.html';
+}
+
+if(new URLSearchParams(window.location.search).get('embedded')==='1'){
+  document.body.classList.add('embedded');
 }
 </script>
 </body>
