@@ -255,10 +255,19 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
 .ani{animation:fadeIn 0.6s ease both;}
 
 @media(max-width:640px){
+  .page{padding:28px 12px 110px;}
   .sched-grid,.priority-strip{grid-template-columns:1fr!important;}
   .priority-strip{grid-template-columns:repeat(3,1fr)!important;}
   .two-col{grid-template-columns:1fr!important;}
   .pf-step .pf-val{font-size:13px;}
+  .day-letter{min-width:58px;padding:14px 14px;}
+  .day-info{padding:10px 12px;}
+  .day-freq{padding:10px 8px;}
+  .ex-table th,.ex-table td{padding:9px 6px;}
+  .ex-table th:first-child,.ex-table td:first-child{display:none;}
+  .ex-name{font-size:13px;}
+  .ex-note{font-size:10.5px;}
+  .rpe-chip{padding:3px 5px;white-space:nowrap;}
 }
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 </style>
@@ -308,9 +317,9 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
 <!-- TIMING -->
 <div class="timing-strip ani">
   <div class="timing-item"><span class="timing-num">8</span><div class="timing-label">暖身 min</div></div>
-  <div class="timing-item"><span class="timing-num">20+</span><div class="timing-label">重訓 min</div></div>
+  <div class="timing-item"><span class="timing-num">40–45</span><div class="timing-label">重訓 min</div></div>
   <div class="timing-item"><span class="timing-num">選配</span><div class="timing-label">有氧 5min</div></div>
-  <div class="timing-item"><span class="timing-num">~30</span><div class="timing-label">目標總計</div></div>
+  <div class="timing-item"><span class="timing-num">≤60</span><div class="timing-label">總時間 min</div></div>
 </div>
 
 <!-- SCHEDULE -->
@@ -369,8 +378,8 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
   <div class="day-header">
     <div class="day-letter" style="background:var(--dayA);">A</div>
     <div class="day-info">
-      <div class="day-name">肩胸主課</div>
-      <div class="day-sub">三角肌 · 上胸 · 臀橋 · 核心</div>
+      <div class="day-name">全身基礎</div>
+      <div class="day-sub">蹲 · 推 · 拉 · 髖鉸鏈 · 肩 · 小腿 · 核心</div>
     </div>
     <div class="day-freq">每週<br/>1–2次</div>
   </div>
@@ -381,44 +390,64 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
         <tr>
           <td class="ex-num">01</td>
           <td>
-            <div class="ex-name">上斜啞鈴胸推</div>
-            <div class="ex-note">手腕中立 · 不過度下放 · 上胸發力</div>
-            <span class="chip chip-warn">⚠️ 左手腕中立</span>
-            <span class="chip chip-kg">目前 10kg</span>
+            <div class="ex-name">箱式高腳杯深蹲</div>
+            <div class="ex-note">臀部向後坐向箱面 · 膝蓋與腳尖同向</div>
           </td>
-          <td class="ex-sets"><strong>2組起</strong><br/>× 8–12下</td>
+          <td class="ex-sets"><strong>3組</strong><br/>× 8～12下</td>
           <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
         </tr>
         <tr>
           <td class="ex-num">02</td>
           <td>
-            <div class="ex-name">坐姿啞鈴肩推</div>
-            <div class="ex-note">椅背支撐 · 不聳肩 · 左肩卡就降重</div>
-            <span class="chip chip-warn">⚠️ 左肩注意</span>
-            <span class="chip chip-kg">目前 8–10kg</span>
+            <div class="ex-name">低上斜中立握啞鈴胸推</div>
+            <div class="ex-note">椅背採低斜角 · 掌心相對 · 肩胛穩定</div>
           </td>
-          <td class="ex-sets"><strong>2組起</strong><br/>× 8–10下</td>
+          <td class="ex-sets"><strong>3組</strong><br/>× 8～12下</td>
           <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
         </tr>
         <tr>
           <td class="ex-num">03</td>
           <td>
-            <div class="ex-name">臀橋（加重）⭐</div>
-            <div class="ex-note">頂峰停 2 秒 · 感受臀部收縮</div>
-            <span class="chip chip-ok">✅ 最喜歡動作</span>
-            <span class="chip chip-kg">目前 10–15kg</span>
+            <div class="ex-name">單手支撐啞鈴划船</div>
+            <div class="ex-note">自由手穩定支撐 · 肘部往髖部方向帶</div>
           </td>
-          <td class="ex-sets"><strong>2組起</strong><br/>× 15下</td>
-          <td><span class="rpe-chip rpe-m">RPE 7</span></td>
+          <td class="ex-sets"><strong>3組</strong><br/>× 每側8～12下</td>
+          <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
         </tr>
         <tr>
           <td class="ex-num">04</td>
           <td>
-            <div class="ex-name">Dead Bug</div>
-            <div class="ex-note">下背貼地 · 核心全程收緊 · 對側延伸</div>
-            <span class="chip chip-ok">✅ 手腕友善</span>
+            <div class="ex-name">啞鈴羅馬尼亞硬舉</div>
+            <div class="ex-note">髖部向後推 · 背部中立 · 感受腿後側</div>
           </td>
-          <td class="ex-sets"><strong>2組</strong><br/>× 每側10下</td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 8～12下</td>
+          <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
+        </tr>
+        <tr>
+          <td class="ex-num">05</td>
+          <td>
+            <div class="ex-name">啞鈴側平舉</div>
+            <div class="ex-note">手肘微彎 · 抬至肩高即可 · 避免聳肩</div>
+          </td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 12～20下</td>
+          <td><span class="rpe-chip rpe-m">RPE 7–8</span></td>
+        </tr>
+        <tr>
+          <td class="ex-num">06</td>
+          <td>
+            <div class="ex-name">站姿提踵</div>
+            <div class="ex-note">頂端停頓 · 全程控制 · 不借力彈震</div>
+          </td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 12～20下</td>
+          <td><span class="rpe-chip rpe-m">RPE 7–8</span></td>
+        </tr>
+        <tr>
+          <td class="ex-num">07</td>
+          <td>
+            <div class="ex-name">Dead Bug</div>
+            <div class="ex-note">下背貼地 · 對側手腳延伸 · 緩慢吐氣</div>
+          </td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 每側8～12下</td>
           <td><span class="rpe-chip rpe-l">核心</span></td>
         </tr>
       </tbody>
@@ -436,8 +465,8 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
   <div class="day-header">
     <div class="day-letter" style="background:var(--dayB);">B</div>
     <div class="day-info">
-      <div class="day-name">背部主課</div>
-      <div class="day-sub">背部 · 後鏈 · 臀橋 · 核心</div>
+      <div class="day-name">後鏈與垂直推拉</div>
+      <div class="day-sub">髖鉸鏈 · 垂直推拉 · 單腳 · 後肩 · 抗旋轉</div>
     </div>
     <div class="day-freq">每週<br/>1–2次</div>
   </div>
@@ -448,43 +477,55 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
         <tr>
           <td class="ex-num">01</td>
           <td>
-            <div class="ex-name">單手啞鈴划船</div>
-            <div class="ex-note">背出力 · 不聳肩 · 未來主力進步動作</div>
-            <span class="chip chip-kg">目前 10kg</span>
+            <div class="ex-name">啞鈴羅馬尼亞硬舉</div>
+            <div class="ex-note">髖部向後推 · 背部中立 · 感受腿後側</div>
           </td>
-          <td class="ex-sets"><strong>2組起</strong><br/>× 10–12下</td>
+          <td class="ex-sets"><strong>3組</strong><br/>× 8～12下</td>
           <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
         </tr>
         <tr>
           <td class="ex-num">02</td>
           <td>
-            <div class="ex-name">羅馬尼亞硬舉</div>
-            <div class="ex-note">練臀腿後鏈 · 改善久坐 · 保護膝蓋</div>
-            <span class="chip chip-ok">✅ 膝蓋友善</span>
-            <span class="chip chip-kg">目前 10kg</span>
+            <div class="ex-name">45～60度高斜角中立握啞鈴推舉</div>
+            <div class="ex-note">椅背45～60度 · 掌心相對 · 肩胛穩定</div>
           </td>
-          <td class="ex-sets"><strong>2組起</strong><br/>× 10下</td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 8～12下</td>
           <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
         </tr>
         <tr>
           <td class="ex-num">03</td>
           <td>
-            <div class="ex-name">臀橋（加重）⭐</div>
-            <div class="ex-note">頂峰停 2 秒 · 感受臀部收縮</div>
-            <span class="chip chip-ok">✅ 最喜歡動作</span>
-            <span class="chip chip-kg">目前 10–15kg</span>
+            <div class="ex-name">彈力帶高位下拉</div>
+            <div class="ex-note">肩胛先下沉 · 手肘往肋骨帶 · 避免後仰</div>
           </td>
-          <td class="ex-sets"><strong>2組</strong><br/>× 15下</td>
-          <td><span class="rpe-chip rpe-m">RPE 7</span></td>
+          <td class="ex-sets"><strong>3組</strong><br/>× 10～15下</td>
+          <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
         </tr>
         <tr>
           <td class="ex-num">04</td>
           <td>
-            <div class="ex-name">Bird Dog</div>
-            <div class="ex-note">脊椎中立 · 對側手腳延伸 · 抗旋轉</div>
-            <span class="chip chip-ok">✅ 手腕友善</span>
+            <div class="ex-name">扶椅後跨分腿蹲</div>
+            <div class="ex-note">扶椅維持平衡 · 後腳跨步 · 前腳穩定發力</div>
           </td>
-          <td class="ex-sets"><strong>2組</strong><br/>× 每側10下</td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 每側8～12下</td>
+          <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
+        </tr>
+        <tr>
+          <td class="ex-num">05</td>
+          <td>
+            <div class="ex-name">彈力帶 Face Pull</div>
+            <div class="ex-note">拉向眉眼高度 · 手肘外展 · 肩胛後收</div>
+          </td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 12～20下</td>
+          <td><span class="rpe-chip rpe-m">RPE 7–8</span></td>
+        </tr>
+        <tr>
+          <td class="ex-num">06</td>
+          <td>
+            <div class="ex-name">Pallof Press</div>
+            <div class="ex-note">軀幹保持正面 · 抵抗旋轉 · 緩慢伸回</div>
+          </td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 每側10～12下</td>
           <td><span class="rpe-chip rpe-l">核心</span></td>
         </tr>
       </tbody>
@@ -502,8 +543,8 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
   <div class="day-header">
     <div class="day-letter" style="background:var(--dayC);">C</div>
     <div class="day-info">
-      <div class="day-name">臀腿主課</div>
-      <div class="day-sub">下半身強化 · 臀橋重點日</div>
+      <div class="day-name">全身變化</div>
+      <div class="day-sub">蹲 · 推 · 拉 · 腿後側 · 肩 · 小腿 · 負重行走</div>
     </div>
     <div class="day-freq">每週<br/>1次</div>
   </div>
@@ -514,33 +555,65 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
         <tr>
           <td class="ex-num">01</td>
           <td>
-            <div class="ex-name">箱式深蹲（坐椅深蹲）</div>
-            <div class="ex-note">膝蓋對腳尖 · 不內夾 · 可抱啞鈴</div>
-            <span class="chip chip-warn">⚠️ 膝蓋方向注意</span>
+            <div class="ex-name">箱式高腳杯深蹲</div>
+            <div class="ex-note">臀部向後坐向箱面 · 膝蓋與腳尖同向</div>
           </td>
-          <td class="ex-sets"><strong>2組</strong><br/>× 10–12下</td>
+          <td class="ex-sets"><strong>3組</strong><br/>× 10～15下</td>
           <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
         </tr>
         <tr>
           <td class="ex-num">02</td>
           <td>
-            <div class="ex-name">臀橋（加重）⭐</div>
-            <div class="ex-note">頂峰停 2 秒 · 今天的主角</div>
-            <span class="chip chip-ok">✅ 最喜歡動作</span>
-            <span class="chip chip-kg">目前 10–15kg</span>
+            <div class="ex-name">中立握啞鈴地板胸推</div>
+            <div class="ex-note">掌心相對 · 上臂碰地即停 · 肩胛穩定</div>
           </td>
-          <td class="ex-sets"><strong>3組（固定）</strong><br/>× 15下</td>
-          <td><span class="rpe-chip rpe-m">RPE 7</span></td>
+          <td class="ex-sets"><strong>3組</strong><br/>× 8～12下</td>
+          <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
         </tr>
         <tr>
           <td class="ex-num">03</td>
           <td>
-            <div class="ex-name">Bird Dog</div>
-            <div class="ex-note">脊椎中立 · 對側手腳延伸 · 核心抗旋轉</div>
-            <span class="chip chip-ok">✅ 手腕友善</span>
+            <div class="ex-name">胸靠斜椅啞鈴划船</div>
+            <div class="ex-note">胸部貼椅 · 肘部往後帶 · 避免聳肩</div>
           </td>
-          <td class="ex-sets"><strong>2組</strong><br/>× 每側10下</td>
-          <td><span class="rpe-chip rpe-l">核心</span></td>
+          <td class="ex-sets"><strong>3組</strong><br/>× 10～15下</td>
+          <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
+        </tr>
+        <tr>
+          <td class="ex-num">04</td>
+          <td>
+            <div class="ex-name">毛巾／滑盤腿彎舉</div>
+            <div class="ex-note">臀部抬起 · 腳跟拉回 · 全程控制</div>
+          </td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 8～15下</td>
+          <td><span class="rpe-chip rpe-h">RPE 7–8</span></td>
+        </tr>
+        <tr>
+          <td class="ex-num">05</td>
+          <td>
+            <div class="ex-name">啞鈴側平舉</div>
+            <div class="ex-note">手肘微彎 · 抬至肩高即可 · 避免聳肩</div>
+          </td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 12～20下</td>
+          <td><span class="rpe-chip rpe-m">RPE 7–8</span></td>
+        </tr>
+        <tr>
+          <td class="ex-num">06</td>
+          <td>
+            <div class="ex-name">站姿提踵</div>
+            <div class="ex-note">頂端停頓 · 全程控制 · 不借力彈震</div>
+          </td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 12～20下</td>
+          <td><span class="rpe-chip rpe-m">RPE 7–8</span></td>
+        </tr>
+        <tr>
+          <td class="ex-num">07</td>
+          <td>
+            <div class="ex-name">單手提重原地踏步</div>
+            <div class="ex-note">軀幹直立 · 避免側傾 · 原地穩定踏步</div>
+          </td>
+          <td class="ex-sets"><strong>2組</strong><br/>× 每側30～45秒</td>
+          <td><span class="rpe-chip rpe-l">每側計時</span></td>
         </tr>
       </tbody>
     </table>
@@ -556,12 +629,12 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
 <div class="sec-label ani">重量進步規則（唯一一條）</div>
 <div class="card ani" style="margin-bottom:28px;">
   <div class="card-body">
-    <div style="font-size:13px;color:var(--ink2);margin-bottom:14px;">同重量每組穩定做到 12 下，連續兩週後再加重。不要急。</div>
+    <div style="font-size:13px;color:var(--ink2);margin-bottom:14px;">同一重量或難度下，每組都達到該動作次數／秒數區間上限，且 RPE 不超過 8，連續 2 次訓練後再進階。</div>
     <div class="progress-flow">
-      <div class="pf-step"><span class="pf-val">10kg</span><div class="pf-label">目前</div></div>
-      <div class="pf-step"><span class="pf-val">12下</span><div class="pf-label">每組穩定</div></div>
-      <div class="pf-step"><span class="pf-val">2週</span><div class="pf-label">連續確認</div></div>
-      <div class="pf-step"><span class="pf-val">↑ 加重</span><div class="pf-label">下一階段</div></div>
+      <div class="pf-step"><span class="pf-val">目前</span><div class="pf-label">重量／難度</div></div>
+      <div class="pf-step"><span class="pf-val">上限</span><div class="pf-label">每組穩定達標</div></div>
+      <div class="pf-step"><span class="pf-val">2次</span><div class="pf-label">連續確認</div></div>
+      <div class="pf-step"><span class="pf-val">↑ 進階</span><div class="pf-label">最小幅度增加</div></div>
     </div>
   </div>
 </div>
@@ -659,7 +732,7 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
 </div>
 
 <div class="footer ani">
-  <span class="footer-label">A / B / C 分化 · 2026</span>
+  <span class="footer-label">A / B / C 全身課表 · 2026</span>
   <span class="footer-label">連續執行 2 週後回報</span>
 </div>
 </div>
@@ -727,9 +800,9 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
         <!-- Day selector -->
         <div class="cl-sec">選擇訓練日</div>
         <div class="day-btns" style="margin-bottom:14px;">
-          <button class="day-btn" id="logBtnA" onclick="setLogDay('A')">Day A<br/><span style="font-size:10px;opacity:.7">肩胸臀</span></button>
-          <button class="day-btn" id="logBtnB" onclick="setLogDay('B')">Day B<br/><span style="font-size:10px;opacity:.7">背臀腿</span></button>
-          <button class="day-btn" id="logBtnC" onclick="setLogDay('C')">Day C<br/><span style="font-size:10px;opacity:.7">臀腿主</span></button>
+          <button class="day-btn" id="logBtnA" onclick="setLogDay('A')">Day A<br/><span style="font-size:10px;opacity:.7">全身基礎</span></button>
+          <button class="day-btn" id="logBtnB" onclick="setLogDay('B')">Day B<br/><span style="font-size:10px;opacity:.7">後鏈推拉</span></button>
+          <button class="day-btn" id="logBtnC" onclick="setLogDay('C')">Day C<br/><span style="font-size:10px;opacity:.7">全身變化</span></button>
         </div>
 
         <!-- Body health -->
@@ -1293,30 +1366,30 @@ h1 em{font-style:normal;color:var(--red);border-bottom:4px solid var(--red);}
 // ═══════════════════════════════════════
 const DAYS = {
   A:[
-    {id:'A1',name:'箱式高腳杯深蹲',defaultKg:10,defaultSets:3,defaultReps:10,targetReps:12},
-    {id:'A2',name:'低上斜中立握啞鈴胸推',defaultKg:6,defaultSets:3,defaultReps:10,targetReps:12},
-    {id:'A3',name:'單手支撐啞鈴划船',defaultKg:8,defaultSets:3,defaultReps:10,targetReps:12},
-    {id:'A4',name:'啞鈴羅馬尼亞硬舉',defaultKg:8,defaultSets:2,defaultReps:10,targetReps:12},
-    {id:'A5',name:'啞鈴側平舉',defaultKg:4,defaultSets:2,defaultReps:15,targetReps:20},
-    {id:'A6',name:'站姿提踵',defaultKg:6,defaultSets:2,defaultReps:15,targetReps:20},
-    {id:'A7',name:'Dead Bug',defaultKg:0,defaultSets:2,defaultReps:10,targetReps:12},
+    {id:'A1',name:'箱式高腳杯深蹲',defaultKg:10,defaultSets:3,defaultReps:10,minReps:8,targetReps:12},
+    {id:'A2',name:'低上斜中立握啞鈴胸推',defaultKg:6,defaultSets:3,defaultReps:10,minReps:8,targetReps:12},
+    {id:'A3',name:'單手支撐啞鈴划船',defaultKg:8,defaultSets:3,defaultReps:10,minReps:8,targetReps:12,perSide:true},
+    {id:'A4',name:'啞鈴羅馬尼亞硬舉',defaultKg:8,defaultSets:2,defaultReps:10,minReps:8,targetReps:12},
+    {id:'A5',name:'啞鈴側平舉',defaultKg:4,defaultSets:2,defaultReps:15,minReps:12,targetReps:20},
+    {id:'A6',name:'站姿提踵',defaultKg:6,defaultSets:2,defaultReps:15,minReps:12,targetReps:20},
+    {id:'A7',name:'Dead Bug',defaultKg:0,defaultSets:2,defaultReps:10,minReps:8,targetReps:12,perSide:true},
   ],
   B:[
-    {id:'B1',name:'啞鈴羅馬尼亞硬舉',defaultKg:8,defaultSets:3,defaultReps:10,targetReps:12},
-    {id:'B2',name:'45～60度高斜角中立握啞鈴推舉',defaultKg:6,defaultSets:2,defaultReps:10,targetReps:12},
-    {id:'B3',name:'彈力帶高位下拉',defaultKg:0,defaultSets:3,defaultReps:12,targetReps:15},
-    {id:'B4',name:'扶椅後跨分腿蹲',defaultKg:0,defaultSets:2,defaultReps:10,targetReps:12},
-    {id:'B5',name:'彈力帶 Face Pull',defaultKg:0,defaultSets:2,defaultReps:15,targetReps:20},
-    {id:'B6',name:'Pallof Press',defaultKg:0,defaultSets:2,defaultReps:10,targetReps:12},
+    {id:'B1',name:'啞鈴羅馬尼亞硬舉',defaultKg:8,defaultSets:3,defaultReps:10,minReps:8,targetReps:12},
+    {id:'B2',name:'45～60度高斜角中立握啞鈴推舉',defaultKg:6,defaultSets:2,defaultReps:10,minReps:8,targetReps:12},
+    {id:'B3',name:'彈力帶高位下拉',defaultKg:0,defaultSets:3,defaultReps:12,minReps:10,targetReps:15},
+    {id:'B4',name:'扶椅後跨分腿蹲',defaultKg:0,defaultSets:2,defaultReps:10,minReps:8,targetReps:12,perSide:true},
+    {id:'B5',name:'彈力帶 Face Pull',defaultKg:0,defaultSets:2,defaultReps:15,minReps:12,targetReps:20},
+    {id:'B6',name:'Pallof Press',defaultKg:0,defaultSets:2,defaultReps:10,minReps:10,targetReps:12,perSide:true},
   ],
   C:[
-    {id:'C1',name:'箱式高腳杯深蹲',defaultKg:10,defaultSets:3,defaultReps:12,targetReps:15},
-    {id:'C2',name:'中立握啞鈴地板胸推',defaultKg:6,defaultSets:3,defaultReps:10,targetReps:12},
-    {id:'C3',name:'胸靠斜椅啞鈴划船',defaultKg:8,defaultSets:3,defaultReps:12,targetReps:15},
-    {id:'C4',name:'毛巾／滑盤腿彎舉',defaultKg:0,defaultSets:2,defaultReps:10,targetReps:15},
-    {id:'C5',name:'啞鈴側平舉',defaultKg:4,defaultSets:2,defaultReps:15,targetReps:20},
-    {id:'C6',name:'站姿提踵',defaultKg:6,defaultSets:2,defaultReps:15,targetReps:20},
-    {id:'C7',name:'單手提重原地踏步',defaultKg:8,defaultSets:2,defaultReps:40,targetReps:45},
+    {id:'C1',name:'箱式高腳杯深蹲',defaultKg:10,defaultSets:3,defaultReps:12,minReps:10,targetReps:15},
+    {id:'C2',name:'中立握啞鈴地板胸推',defaultKg:6,defaultSets:3,defaultReps:10,minReps:8,targetReps:12},
+    {id:'C3',name:'胸靠斜椅啞鈴划船',defaultKg:8,defaultSets:3,defaultReps:12,minReps:10,targetReps:15},
+    {id:'C4',name:'毛巾／滑盤腿彎舉',defaultKg:0,defaultSets:2,defaultReps:10,minReps:8,targetReps:15},
+    {id:'C5',name:'啞鈴側平舉',defaultKg:4,defaultSets:2,defaultReps:15,minReps:12,targetReps:20},
+    {id:'C6',name:'站姿提踵',defaultKg:6,defaultSets:2,defaultReps:15,minReps:12,targetReps:20},
+    {id:'C7',name:'單手提重原地踏步',defaultKg:8,defaultSets:2,defaultReps:40,minReps:30,targetReps:45,perSide:true,unit:'秒'},
   ],
 };
 
@@ -1427,9 +1500,9 @@ function renderChecklist(){
   selDiv.className='day-sel';
   selDiv.innerHTML=`<div class="day-sel-lbl" style="margin-top:14px;">今天練哪天？</div>
     <div class="day-btns">
-      <button class="day-btn${currentDay==='A'?' sel-A':''}" onclick="clSelectDay('A')">Day A<br/><span style="font-size:10px;opacity:.7">肩胸臀</span></button>
-      <button class="day-btn${currentDay==='B'?' sel-B':''}" onclick="clSelectDay('B')">Day B<br/><span style="font-size:10px;opacity:.7">背臀腿</span></button>
-      <button class="day-btn${currentDay==='C'?' sel-C':''}" onclick="clSelectDay('C')">Day C<br/><span style="font-size:10px;opacity:.7">臀腿主</span></button>
+      <button class="day-btn${currentDay==='A'?' sel-A':''}" onclick="clSelectDay('A')">Day A<br/><span style="font-size:10px;opacity:.7">全身基礎</span></button>
+      <button class="day-btn${currentDay==='B'?' sel-B':''}" onclick="clSelectDay('B')">Day B<br/><span style="font-size:10px;opacity:.7">後鏈推拉</span></button>
+      <button class="day-btn${currentDay==='C'?' sel-C':''}" onclick="clSelectDay('C')">Day C<br/><span style="font-size:10px;opacity:.7">全身變化</span></button>
       <button class="day-btn${currentDay===null?' sel-R':''}" onclick="clSelectDay(null)"><span style="font-size:11px;">休息日</span></button>
     </div>`;
   body.appendChild(selDiv);
@@ -1558,8 +1631,8 @@ function updateWristWarn(val){
 
 function updateKneeWarn(val){
   const el=document.getElementById('warnKnee');
-  if(val>=6) el.textContent='⚠️ 今日避免深蹲，改以臀橋為主';
-  else if(val>=3) el.textContent='注意：深蹲幅度不要過大';
+  if(val>=6) el.textContent='⚠️ 今日先略過深蹲與分腿蹲，以無痛動作為主';
+  else if(val>=3) el.textContent='注意：深蹲與分腿蹲縮小幅度，若痛感增加就停止';
   else el.textContent='';
 }
 
@@ -1580,18 +1653,31 @@ function getLastLog(exId){
   return null;
 }
 
-function checkSuggestUpweight(exId, targetReps){
+function formatTarget(ex){
+  const unit=ex.unit||'下';
+  return `${ex.perSide?'每側':''}${ex.minReps}～${ex.targetReps}${unit}`;
+}
+
+function formatPerformance(ex, reps){
+  const unit=ex.unit||'下';
+  return `${ex.perSide?'每側':''}${reps}${unit}`;
+}
+
+function checkSuggestProgress(ex){
   const allLogs=ld('train_logs',[]);
-  const recent=allLogs.filter(l=>l.exercises&&l.exercises.find(e=>e.id===exId));
+  const recent=allLogs.filter(l=>l.exercises&&l.exercises.find(e=>e.id===ex.id));
   if(recent.length<2) return null;
   const last2=recent.slice(-2);
   const both=last2.every(log=>{
-    const ex=log.exercises.find(e=>e.id===exId);
-    return ex && parseInt(ex.reps)>=targetReps && parseInt(ex.rpe)<=8;
+    const logged=log.exercises.find(e=>e.id===ex.id);
+    return logged && parseInt(logged.reps)>=ex.targetReps && parseInt(logged.rpe)<=8;
   });
   if(both){
-    const lastEx=last2[last2.length-1].exercises.find(e=>e.id===exId);
-    return lastEx ? parseFloat(lastEx.kg)+2.5 : null;
+    const lastEx=last2[last2.length-1].exercises.find(e=>e.id===ex.id);
+    const lastKg=lastEx?parseFloat(lastEx.kg):0;
+    if(lastKg>0) return `💪 可加重至 ${lastKg+2.5}kg`;
+    if(ex.name.includes('彈力帶')) return '💪 可提高彈力帶阻力';
+    return '💪 可提高動作難度';
   }
   return null;
 }
@@ -1603,7 +1689,7 @@ function renderLogExercises(){
   const todayLog=ld('draft_log_'+todayStr(),{});
   DAYS[logDay].forEach(ex=>{
     const last=getLastLog(ex.id);
-    const suggest=checkSuggestUpweight(ex.id, ex.targetReps);
+    const suggest=checkSuggestProgress(ex);
     const draft=todayLog[ex.id]||{};
     const defKg=draft.kg!==undefined?draft.kg:(last?last.kg:ex.defaultKg);
     const defSets=draft.sets!==undefined?draft.sets:(last?last.sets:ex.defaultSets);
@@ -1617,9 +1703,10 @@ function renderLogExercises(){
     let headerHtml=`<div class="ex-log-header">
       <div>
         <div class="ex-log-name">${ex.name}</div>
-        ${last?`<div class="ex-last">上次：${last.kg}kg × ${last.sets}組 × ${last.reps}下 RPE${last.rpe}</div>`:'<div class="ex-last">首次記錄</div>'}
+        <div class="ex-last">目標：${ex.defaultSets}組 × ${formatTarget(ex)}</div>
+        ${last?`<div class="ex-last">上次：${last.kg>0?last.kg+'kg × ':''}${last.sets}組 × ${formatPerformance(ex,last.reps)} RPE${last.rpe}</div>`:'<div class="ex-last">首次記錄</div>'}
       </div>`;
-    if(suggest) headerHtml+=`<div class="ex-suggest">💪 可加重至 ${suggest}kg</div>`;
+    if(suggest) headerHtml+=`<div class="ex-suggest">${suggest}</div>`;
     headerHtml+=`</div>`;
 
     card.innerHTML=headerHtml+`
@@ -1633,8 +1720,8 @@ function renderLogExercises(){
         <input class="log-input" id="log_sets_${ex.id}" type="number" min="1" max="6" value="${defSets}" oninput="saveDraft('${ex.id}','sets',this.value)"/>
       </div>
       <div class="log-field">
-        <label>次數（每組）</label>
-        <input class="log-input" id="log_reps_${ex.id}" type="number" min="1" max="30" value="${defReps}" oninput="saveDraft('${ex.id}','reps',this.value)"/>
+        <label>${ex.unit==='秒'?'秒數':'次數'}（${ex.perSide?'每側；':''}每組）</label>
+        <input class="log-input" id="log_reps_${ex.id}" type="number" min="1" max="${ex.unit==='秒'?180:100}" value="${defReps}" oninput="saveDraft('${ex.id}','reps',this.value)"/>
       </div>
       <div class="log-field">
         <label>RPE 強度感</label>
@@ -1737,14 +1824,17 @@ function renderLogHistory(){
         <span class="hist-toggle" id="tog_${i}">▼</span>
       </div>
       <div class="hist-body" id="hist_${i}">
-        ${(log.exercises||[]).map(ex=>`
-          <div class="hist-ex">
-            <div>
-              <div class="hist-ex-name">${ex.name}</div>
-              ${ex.note?`<div class="hist-note">📝 ${ex.note}</div>`:''}
-            </div>
-            <div class="hist-ex-vals">${ex.kg>0?ex.kg+'kg · ':''}${ex.sets}組 × ${ex.reps}下<br/>RPE ${ex.rpe}</div>
-          </div>`).join('')}
+        ${(log.exercises||[]).map(ex=>{
+          const meta=(DAYS[log.day]||[]).find(item=>item.id===ex.id)||{};
+          return `
+            <div class="hist-ex">
+              <div>
+                <div class="hist-ex-name">${ex.name}</div>
+                ${ex.note?`<div class="hist-note">📝 ${ex.note}</div>`:''}
+              </div>
+              <div class="hist-ex-vals">${ex.kg>0?ex.kg+'kg · ':''}${ex.sets}組 × ${formatPerformance(meta,ex.reps)}<br/>RPE ${ex.rpe}</div>
+            </div>`;
+        }).join('')}
         <div class="hist-health">
           <span class="hist-health-chip${log.health?.wrist>=6?' warn':''}">手腕 ${log.health?.wrist||0}/10</span>
           <span class="hist-health-chip${log.health?.knee>=6?' warn':''}">膝蓋 ${log.health?.knee||0}/10</span>
@@ -2009,10 +2099,10 @@ function generateGPTReport(){
       const rpe = document.getElementById('log_rpe_'+ex.id)?.value || 7;
       const note= document.getElementById('log_note_'+ex.id)?.value || '';
       const kgLabel = parseFloat(kg)>0 ? `${kg}kg` : '徒手';
-      // check upweight suggestion
-      const suggest = checkSuggestUpweight(ex.id, ex.targetReps);
-      if(suggest) suggestLines.push(`  ・${ex.name} → 建議下次嘗試 ${suggest}kg`);
-      return `  ・${ex.name}｜${kgLabel} × ${sets}組 × ${reps}下｜RPE ${rpe}${note?'｜備註：'+note:''}`;
+      // check progression suggestion
+      const suggest = checkSuggestProgress(ex);
+      if(suggest) suggestLines.push(`  ・${ex.name} → ${suggest.replace('💪 ','')}`);
+      return `  ・${ex.name}｜${kgLabel} × ${sets}組 × ${formatPerformance(ex,reps)}｜RPE ${rpe}${note?'｜備註：'+note:''}`;
     });
     exLines = exArr.join('\n');
   }
@@ -2039,9 +2129,9 @@ function generateGPTReport(){
     wtLine += `\n  ・近 ${wtKeys.length} 天趨勢：${diff>0?'+':''}${diff} kg`;
   }
 
-  // Upweight suggestions
+  // Progression suggestions
   const suggestBlock = suggestLines.length > 0
-    ? `\n💪 系統建議加重\n${suggestLines.join('\n')}\n`
+    ? `\n💪 系統進階建議\n${suggestLines.join('\n')}\n`
     : '';
 
   // Streak
