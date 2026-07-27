@@ -1,0 +1,9 @@
+{
+  "name": "Training System V2",
+  "short_name": "Training V2",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f2ed",
+  "theme_color": "#1b1713",
+  "icons": []
+}

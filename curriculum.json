@@ -1,0 +1,196 @@
+{
+  "appVersion": "2.0.0",
+  "curriculumVersion": "2.0",
+  "updatedAt": "2026-07-27",
+  "global": {
+    "bpm": 60,
+    "targetMinutes": 45,
+    "maximumMinutes": 60,
+    "restSeconds": 90,
+    "coreRestSeconds": 60,
+    "principle": "先完成必做動作；選做動作不影響當日完成判定。"
+  },
+  "days": {
+    "A": {
+      "name": "全身基礎",
+      "focus": "蹲、推、拉、髖鉸鏈",
+      "exercises": [
+        {
+          "id": "goblet-squat",
+          "name": "箱式高腳杯深蹲",
+          "priority": "required",
+          "weight": 11.5,
+          "sets": 2,
+          "minReps": 8,
+          "maxReps": 12,
+          "perSide": false,
+          "cue": "底部停留 1 秒",
+          "restSeconds": 90
+        },
+        {
+          "id": "incline-db-press",
+          "name": "低上斜中立握啞鈴胸推",
+          "priority": "required",
+          "weight": 13.5,
+          "sets": 2,
+          "minReps": 8,
+          "maxReps": 12,
+          "perSide": false,
+          "cue": "頂部不停留，持續控制",
+          "restSeconds": 90
+        },
+        {
+          "id": "one-arm-db-row",
+          "name": "單手支撐啞鈴划船",
+          "priority": "required",
+          "weight": 8,
+          "sets": 2,
+          "minReps": 8,
+          "maxReps": 12,
+          "perSide": true,
+          "cue": "頂峰收縮 1 秒",
+          "restSeconds": 90
+        },
+        {
+          "id": "db-rdl",
+          "name": "啞鈴羅馬尼亞硬舉",
+          "priority": "required",
+          "weight": 11.5,
+          "sets": 2,
+          "minReps": 8,
+          "maxReps": 12,
+          "perSide": false,
+          "cue": "底部停留 1 秒",
+          "restSeconds": 90
+        },
+        {
+          "id": "lateral-raise",
+          "name": "啞鈴側平舉",
+          "priority": "optional",
+          "weight": 4,
+          "sets": 2,
+          "minReps": 12,
+          "maxReps": 20,
+          "perSide": false,
+          "cue": "頂峰收縮 1 秒",
+          "restSeconds": 60
+        },
+        {
+          "id": "standing-calf-raise",
+          "name": "站姿提踵",
+          "priority": "optional",
+          "weight": 6,
+          "sets": 2,
+          "minReps": 12,
+          "maxReps": 20,
+          "perSide": false,
+          "cue": "頂峰收縮 2 秒",
+          "restSeconds": 60
+        },
+        {
+          "id": "dead-bug",
+          "name": "Dead Bug",
+          "priority": "optional",
+          "weight": 0,
+          "sets": 2,
+          "minReps": 8,
+          "maxReps": 12,
+          "perSide": true,
+          "cue": "伸展停留 1 秒",
+          "restSeconds": 60
+        }
+      ]
+    },
+    "B": {
+      "name": "後鏈與垂直推拉",
+      "focus": "髖鉸鏈、肩推、垂直拉、單腳",
+      "exercises": [
+        {
+          "id": "db-rdl-b",
+          "name": "啞鈴羅馬尼亞硬舉",
+          "priority": "required",
+          "weight": 11.5,
+          "sets": 3,
+          "minReps": 8,
+          "maxReps": 12,
+          "perSide": false,
+          "cue": "底部停留 1 秒",
+          "restSeconds": 90
+        },
+        {
+          "id": "high-incline-db-press",
+          "name": "45–60°高斜角中立握啞鈴推舉",
+          "priority": "required",
+          "weight": 8,
+          "sets": 2,
+          "minReps": 8,
+          "maxReps": 12,
+          "perSide": false,
+          "cue": "頂部不停留，避免聳肩",
+          "restSeconds": 90
+        },
+        {
+          "id": "band-lat-pulldown",
+          "name": "彈力帶高位下拉",
+          "priority": "required",
+          "weight": 0,
+          "sets": 3,
+          "minReps": 10,
+          "maxReps": 15,
+          "perSide": false,
+          "cue": "頂峰收縮 1 秒",
+          "restSeconds": 75
+        },
+        {
+          "id": "supported-reverse-lunge",
+          "name": "扶椅後跨分腿蹲",
+          "priority": "required",
+          "weight": 0,
+          "sets": 2,
+          "minReps": 8,
+          "maxReps": 12,
+          "perSide": true,
+          "cue": "底部停留 1 秒",
+          "restSeconds": 90
+        },
+        {
+          "id": "glute-bridge",
+          "name": "啞鈴臀橋",
+          "priority": "optional",
+          "weight": 11.5,
+          "sets": 2,
+          "minReps": 10,
+          "maxReps": 15,
+          "perSide": false,
+          "cue": "頂峰收縮 2 秒",
+          "restSeconds": 60
+        },
+        {
+          "id": "bird-dog",
+          "name": "Bird Dog",
+          "priority": "optional",
+          "weight": 0,
+          "sets": 2,
+          "minReps": 8,
+          "maxReps": 12,
+          "perSide": true,
+          "cue": "伸展停留 1 秒",
+          "restSeconds": 60
+        }
+      ]
+    }
+  },
+  "changelog": [
+    {
+      "version": "2.0",
+      "date": "2026-07-27",
+      "changes": [
+        "改為必做／選做分級，降低後段動作放棄率",
+        "每次訓練以 45 分鐘為目標、不得超過 60 分鐘",
+        "全程 60 BPM；節拍器與頁籤共用，不因切換畫面中斷",
+        "移除課表內 RPE 與自動加重規則，改由訓練後復盤判斷",
+        "訓練紀錄由 localStorage 改存 IndexedDB"
+      ]
+    }
+  ]
+}
