@@ -1,26 +1,98 @@
 <!doctype html>
-<html lang="zh-TW"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1b1713"><link rel="manifest" href="./manifest.json"><link rel="stylesheet" href="./styles.css">
-<title>Training System V2</title></head><body><main class="app">
-<div class="topbar"><div><div class="eyebrow">Personal Training Web App</div><div class="title">Training System</div><div id="version" class="version">載入中</div></div><div id="target" class="small muted"></div></div>
-<div id="fatal" class="card hidden">無法載入 curriculum.json。請透過 GitHub Pages 或本機伺服器開啟，不要直接點擊 file://。</div>
-<div id="metro" class="metro"><div class="metro-dot"></div><div class="grow"><b>60 BPM 節拍器</b><div class="small" style="opacity:.65">切換頁籤不會中斷</div></div><button id="metroBtn" class="secondary">開始</button></div>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1b1713">
+<link rel="manifest" href="./manifest.json">
+<link rel="stylesheet" href="./styles.css">
+<title>Training System V2</title>
+</head>
+<body>
+<main class="app">
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">Personal Training Web App</div>
+      <div class="title">Training System</div>
+      <div id="version" class="version">載入中</div>
+    </div>
+    <div id="target" class="small muted"></div>
+  </div>
 
-<section id="todayView" class="view active">
- <div class="card"><div class="row"><div class="grow"><b id="dayTitle">今日訓練</b><div class="small muted">先完成必做；時間足夠再做選做</div></div><div class="day-pills"><button class="day-pill active" data-day="A">A</button><button class="day-pill" data-day="B">B</button></div></div>
- <div class="progress" style="margin-top:12px"><div id="progressBar"></div></div><div id="progressText" class="small muted" style="margin-top:5px"></div></div>
- <div class="card"><div class="row"><div class="field smallfield"><label>睡眠（小時）</label><input id="sleep" inputmode="decimal"></div><div class="field smallfield"><label>左手腕痛 0–10</label><input id="wrist" type="number" min="0" max="10" value="0"></div><div class="field smallfield"><label>膝蓋痛 0–10</label><input id="knee" type="number" min="0" max="10" value="0"></div><div class="field"><label>胃食道逆流</label><select id="gerd"><option>無</option><option>輕微</option><option>明顯</option></select></div></div><label style="margin-top:10px">飲食／恢復備註</label><textarea id="nutrition" rows="2" placeholder="蛋白質、酒精、腸胃、疲勞等"></textarea></div>
- <div id="exerciseList"></div><button id="finishBtn" class="good" style="width:100%">完成訓練並存入 IndexedDB</button>
- <div id="reportCard" class="card hidden"><div class="row"><b class="grow">今日訓練報告</b><button id="copyBtn" class="secondary">複製</button></div><pre id="report" class="report"></pre></div>
-</section>
+  <div id="fatal" class="card hidden">無法載入 curriculum.json。請透過 GitHub Pages 或本機伺服器開啟，不要直接點擊 file://。</div>
 
-<section id="curriculumView" class="view"><div class="card"><b>V2 執行原則</b><div class="small muted">課表只負責執行；RPE、加重與改版判斷留到訓練後復盤。</div></div><div id="curriculumDays"></div><h3>更新紀錄</h3><div id="changelog"></div></section>
-<section id="historyView" class="view"><div class="card"><b>訓練歷史</b><div class="small muted">資料儲存在目前手機瀏覽器的 IndexedDB。</div><div id="historyList"></div></div></section>
-<section id="settingsView" class="view">
- <div class="card"><b>資料備份</b><p class="small muted">IndexedDB 不會自動同步到 Git。建議定期匯出 JSON。</p><div class="row"><button id="exportBtn">匯出 JSON</button><label class="secondary" style="padding:10px 14px;border-radius:10px;cursor:pointer">匯入 JSON<input id="importFile" type="file" accept=".json" class="hidden"></label></div></div>
- <div class="card"><b>PWA 安裝</b><p class="small muted">iPhone：Safari 分享 → 加入主畫面。Android：Chrome 選單 → 安裝應用程式／加到主畫面。</p></div>
- <div class="card"><b>危險操作</b><p class="small muted">清除只影響目前手機與瀏覽器。</p><button id="resetBtn" class="danger">清除全部本機資料</button></div>
-</section>
+  <div id="metro" class="metro">
+    <div class="metro-dot"></div>
+    <div class="grow"><b>60 BPM 節拍器</b><div class="small" style="opacity:.65">切換頁籤不會中斷</div></div>
+    <button id="metroBtn" class="secondary">開始</button>
+  </div>
+
+  <section id="todayView" class="view active">
+    <div id="workoutPanel">
+      <div class="card">
+        <div class="row">
+          <div class="grow"><b id="dayTitle">今日訓練</b><div class="small muted">先完成必做；時間足夠再做選做</div></div>
+          <div class="day-pills"><button class="day-pill active" data-day="A">A</button><button class="day-pill" data-day="B">B</button></div>
+        </div>
+        <div class="progress" style="margin-top:12px"><div id="progressBar"></div></div>
+        <div id="progressText" class="small muted" style="margin-top:5px"></div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div class="field smallfield"><label>睡眠（小時）</label><input id="sleep" inputmode="decimal"></div>
+          <div class="field smallfield"><label>左手腕痛 0–10</label><input id="wrist" type="number" min="0" max="10" value="0"></div>
+          <div class="field smallfield"><label>膝蓋痛 0–10</label><input id="knee" type="number" min="0" max="10" value="0"></div>
+          <div class="field"><label>胃食道逆流</label><select id="gerd"><option>無</option><option>輕微</option><option>明顯</option></select></div>
+        </div>
+        <label style="margin-top:10px">飲食／恢復備註</label>
+        <textarea id="nutrition" rows="2" placeholder="蛋白質、酒精、腸胃、疲勞等"></textarea>
+      </div>
+
+      <div id="exerciseList"></div>
+      <button id="finishBtn" class="good full">完成訓練</button>
+    </div>
+
+    <div id="summaryPanel" class="hidden">
+      <div class="completion-hero card">
+        <div class="completion-mark">✓</div>
+        <div><div class="eyebrow">WORKOUT SAVED</div><h2>今日訓練完成</h2><div id="summaryHeadline" class="muted"></div></div>
+      </div>
+      <div id="summaryStats" class="summary-stats"></div>
+      <div id="prCard" class="card hidden"></div>
+      <div class="card">
+        <div class="row"><b class="grow">完整訓練總結</b><button id="copyBtn" class="secondary">複製給 ChatGPT</button></div>
+        <pre id="report" class="report"></pre>
+      </div>
+      <div class="summary-actions">
+        <button id="copyBtnBottom" class="good">複製給 ChatGPT</button>
+        <button id="backWorkoutBtn" class="secondary">返回今日訓練</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="curriculumView" class="view">
+    <div class="card"><b>V2 執行原則</b><div class="small muted">課表只負責執行；RPE、加重與改版判斷留到訓練後復盤。</div></div>
+    <div id="curriculumDays"></div><h3>更新紀錄</h3><div id="changelog"></div>
+  </section>
+
+  <section id="historyView" class="view">
+    <div class="card"><b>訓練歷史</b><div class="small muted">資料儲存在目前手機瀏覽器的 IndexedDB。</div><div id="historyList"></div></div>
+  </section>
+
+  <section id="settingsView" class="view">
+    <div class="card"><b>資料備份</b><p class="small muted">IndexedDB 不會自動同步到 Git。建議定期匯出 JSON。</p><div class="row"><button id="exportBtn">匯出 JSON</button><label class="secondary file-button">匯入 JSON<input id="importFile" type="file" accept=".json" class="hidden"></label></div></div>
+    <div class="card"><b>PWA 安裝</b><p class="small muted">iPhone：Safari 分享 → 加入主畫面。Android：Chrome 選單 → 安裝應用程式／加到主畫面。</p></div>
+    <div class="card"><b>危險操作</b><p class="small muted">清除只影響目前手機與瀏覽器。</p><button id="resetBtn" class="danger">清除全部本機資料</button></div>
+  </section>
 </main>
-<nav class="tabs"><button class="tab active" data-view="todayView">今日訓練</button><button class="tab" data-view="curriculumView">課表</button><button class="tab" data-view="historyView">歷史</button><button class="tab" data-view="settingsView">設定</button></nav>
-<script src="./app.js"></script></body></html>
+
+<nav class="tabs">
+  <button class="tab active" data-view="todayView">今日訓練</button>
+  <button class="tab" data-view="curriculumView">課表</button>
+  <button class="tab" data-view="historyView">歷史</button>
+  <button class="tab" data-view="settingsView">設定</button>
+</nav>
+<script src="./app.js"></script>
+</body>
+</html>
