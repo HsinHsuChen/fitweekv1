@@ -45,8 +45,79 @@
           <div class="field smallfield"><label>膝蓋痛 0–10</label><input id="knee" type="number" min="0" max="10" value="0"></div>
           <div class="field"><label>胃食道逆流</label><select id="gerd"><option>無</option><option>輕微</option><option>明顯</option></select></div>
         </div>
-        <label style="margin-top:10px">飲食／恢復備註</label>
-        <textarea id="nutrition" rows="2" placeholder="蛋白質、酒精、腸胃、疲勞等"></textarea>
+      </div>
+
+      <div class="card diet-card">
+        <div class="row">
+          <div class="grow">
+            <b>今日飲食紀錄</b>
+            <div class="small muted">沿用 V1 的飲食檢核，資料會自動存入 IndexedDB 並帶入訓練總結。</div>
+          </div>
+        </div>
+
+        <div class="diet-checks">
+          <label class="check-tile good-check"><input id="dProtein" type="checkbox"><span>蛋白質達標（140g+）</span></label>
+          <label class="check-tile warn-check"><input id="dBeer" type="checkbox"><span>今天喝了啤酒</span></label>
+          <label class="check-tile warn-check"><input id="dChicken" type="checkbox"><span>今天吃了鹹酥雞</span></label>
+          <label class="check-tile warn-check"><input id="dCookie" type="checkbox"><span>今天吃了餅乾</span></label>
+          <label class="check-tile warn-check"><input id="dLateEat" type="checkbox"><span>晚上飲食失控</span></label>
+        </div>
+
+        <div class="row diet-numbers">
+          <div class="field smallfield"><label>蛋白質估計（g）</label><input id="proteinGrams" type="number" min="0" inputmode="numeric" placeholder="例如 120"></div>
+          <div class="field smallfield"><label>飲水量（ml）</label><input id="waterMl" type="number" min="0" inputmode="numeric" placeholder="例如 2700"></div>
+          <div class="field smallfield"><label>今日體重（kg）</label><input id="bodyWeight" inputmode="decimal" placeholder="選填"></div>
+        </div>
+
+        <div class="meal-grid">
+          <div class="field"><label>早餐</label><textarea id="breakfast" rows="2" placeholder="餐點、份量或未吃"></textarea></div>
+          <div class="field"><label>午餐</label><textarea id="lunch" rows="2" placeholder="餐點與大致份量"></textarea></div>
+          <div class="field"><label>晚餐</label><textarea id="dinner" rows="2" placeholder="餐點與大致份量"></textarea></div>
+        </div>
+
+
+        <div class="meal-photo-section">
+          <div class="row">
+            <div class="grow">
+              <b>餐點照片</b>
+              <div class="small muted">每餐最多 2 張。系統會壓縮後存入 IndexedDB；匯出時可連同報告一起交給 ChatGPT 估算熱量與蛋白質。</div>
+            </div>
+          </div>
+
+          <div class="photo-tip">
+            建議拍攝 45° 斜上方或正上方，讓整份餐點、飲料與醬料都入鏡；份量不明時在餐點文字補充碗／盤尺寸、重量或是否加油。
+          </div>
+
+          <div class="meal-photo-grid">
+            <div class="meal-photo-card">
+              <div class="row"><b class="grow">早餐照片</b><span class="photo-count" data-photo-count="breakfast">0/2</span></div>
+              <label class="photo-add">拍照／選照片<input type="file" accept="image/*" multiple data-photo-input="breakfast" class="hidden"></label>
+              <div class="photo-status small muted" data-photo-status="breakfast"></div>
+              <div class="photo-preview-grid" data-photo-preview="breakfast"></div>
+            </div>
+            <div class="meal-photo-card">
+              <div class="row"><b class="grow">午餐照片</b><span class="photo-count" data-photo-count="lunch">0/2</span></div>
+              <label class="photo-add">拍照／選照片<input type="file" accept="image/*" multiple data-photo-input="lunch" class="hidden"></label>
+              <div class="photo-status small muted" data-photo-status="lunch"></div>
+              <div class="photo-preview-grid" data-photo-preview="lunch"></div>
+            </div>
+            <div class="meal-photo-card">
+              <div class="row"><b class="grow">晚餐照片</b><span class="photo-count" data-photo-count="dinner">0/2</span></div>
+              <label class="photo-add">拍照／選照片<input type="file" accept="image/*" multiple data-photo-input="dinner" class="hidden"></label>
+              <div class="photo-status small muted" data-photo-status="dinner"></div>
+              <div class="photo-preview-grid" data-photo-preview="dinner"></div>
+            </div>
+            <div class="meal-photo-card">
+              <div class="row"><b class="grow">加餐／宵夜照片</b><span class="photo-count" data-photo-count="snack">0/2</span></div>
+              <label class="photo-add">拍照／選照片<input type="file" accept="image/*" multiple data-photo-input="snack" class="hidden"></label>
+              <div class="photo-status small muted" data-photo-status="snack"></div>
+              <div class="photo-preview-grid" data-photo-preview="snack"></div>
+            </div>
+          </div>
+        </div>
+
+        <label style="margin-top:10px">加餐／恢復／腸胃備註</label>
+        <textarea id="nutrition" rows="2" placeholder="宵夜、零食、疲勞、腸胃反應等"></textarea>
       </div>
 
       <div id="exerciseList"></div>
@@ -60,14 +131,21 @@
       </div>
       <div id="summaryStats" class="summary-stats"></div>
       <div id="prCard" class="card hidden"></div>
+      <div id="summaryMealPhotos" class="card hidden">
+        <div class="row"><div class="grow"><b>餐點照片</b><div class="small muted">這些照片會包含在 ChatGPT 報告包或手機分享附件中。</div></div></div>
+        <div id="summaryPhotoGrid" class="summary-photo-grid"></div>
+      </div>
       <div class="card">
         <div class="row"><b class="grow">完整訓練總結</b><button id="copyBtn" class="secondary">複製給 ChatGPT</button></div>
         <pre id="report" class="report"></pre>
       </div>
-      <div class="summary-actions">
-        <button id="copyBtnBottom" class="good">複製給 ChatGPT</button>
+      <div class="summary-actions summary-actions-wide">
+        <button id="shareReportBtn" class="good">分享報告＋照片</button>
+        <button id="downloadReportBtn">下載 ChatGPT 報告包</button>
+        <button id="copyBtnBottom" class="secondary">只複製文字報告</button>
         <button id="backWorkoutBtn" class="secondary">返回今日訓練</button>
       </div>
+      <div class="small muted share-note">手機分享時請在分享面板選擇 ChatGPT；若裝置不支援多檔分享，系統會改下載 ZIP 報告包。</div>
     </div>
   </section>
 
@@ -93,6 +171,7 @@
   <button class="tab" data-view="historyView">歷史</button>
   <button class="tab" data-view="settingsView">設定</button>
 </nav>
+<script src="./jszip.min.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>
