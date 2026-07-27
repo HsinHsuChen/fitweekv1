@@ -88,4 +88,20 @@ function metroClick(){if(!audioCtx)audioCtx=new (window.AudioContext||window.web
 function toggleMetro(){if(metroTimer){clearInterval(metroTimer);metroTimer=null;$('#metro').classList.remove('running');$('#metroBtn').textContent='開始'}else{metroClick();metroTimer=setInterval(metroClick,1000);$('#metro').classList.add('running');$('#metroBtn').textContent='停止'}}
 document.addEventListener('click',e=>{if(e.target.matches('.tab'))setView(e.target.dataset.view);if(e.target.matches('.day-pill'))chooseDay(e.target.dataset.day)});
 $('#metroBtn').addEventListener('click',toggleMetro);$('#finishBtn').addEventListener('click',finishWorkout);$('#copyBtn').addEventListener('click',copyReport);$('#exportBtn').addEventListener('click',exportData);$('#importFile').addEventListener('change',e=>e.target.files[0]&&importData(e.target.files[0]));$('#resetBtn').addEventListener('click',resetAll);
-window.addEventListener('load',async()=>{await openDB();await loadCurriculum();setView(localStorage.getItem('activeView')||'todayView');if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{})});
+
+function updateVisualViewportOffset(){
+ const vv=window.visualViewport;
+ if(!vv){document.documentElement.style.setProperty('--visual-bottom-offset','0px');return}
+ const layoutHeight=document.documentElement.clientHeight;
+ const visualBottom=vv.offsetTop+vv.height;
+ const offset=Math.max(0,Math.round(layoutHeight-visualBottom));
+ document.documentElement.style.setProperty('--visual-bottom-offset',`${offset}px`);
+}
+if(window.visualViewport){
+ window.visualViewport.addEventListener('resize',updateVisualViewportOffset);
+ window.visualViewport.addEventListener('scroll',updateVisualViewportOffset);
+}
+window.addEventListener('resize',updateVisualViewportOffset);
+window.addEventListener('orientationchange',()=>setTimeout(updateVisualViewportOffset,150));
+
+window.addEventListener('load',async()=>{updateVisualViewportOffset();await openDB();await loadCurriculum();setView(localStorage.getItem('activeView')||'todayView');if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{})});
