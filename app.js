@@ -1,6 +1,6 @@
 const $=(s,el=document)=>el.querySelector(s);
 const $$=(s,el=document)=>[...el.querySelectorAll(s)];
-let curriculum=null,currentDay='A',metroTimer=null,audioCtx=null,workoutStartedAt=null,currentReport='',currentSummaryWorkout=null;
+let curriculum=null,currentDay='A',metroTimer=null,audioCtx=null,workoutStartedAt=null,currentReport='',currentSummaryWorkout=null,restTimer=null,restButton=null;
 const MEAL_LABELS={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'加餐／宵夜'};
 const MAX_PHOTOS_PER_MEAL=2;
 let mealPhotos={breakfast:[],lunch:[],dinner:[],snack:[]};
@@ -16,6 +16,9 @@ function localDate(){const d=new Date();return `${d.getFullYear()}-${String(d.ge
 function draftId(day=currentDay){return `draft-${localDate()}-${day}`}
 function number(v){const n=Number(v);return Number.isFinite(n)?n:0}
 function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function scheduledDay(){const day=new Date().getDay();if(day===2||day===5)return'B';if(day===3||day===6)return'C';return'A'}
+function activeExercises(day=currentDay){const list=curriculum?.days?.[day]?.exercises||[],isSaturday=new Date().getDay()===6;return list.filter(ex=>!ex.saturdayOnly||isSaturday)}
+function exerciseGuide(ex){return `<div class="cue"><b>一句要領：</b>${escapeHtml(ex.cue)}</div><details class="form-guide"><summary>查看完整動作要領</summary><div class="guide-flow"><div class="guide-step"><b>1｜起始</b>${escapeHtml(ex.setup)}</div><div class="guide-step"><b>2｜動作</b>${escapeHtml(ex.execution)}</div><div class="guide-step"><b>3｜回位</b>${escapeHtml(ex.return)}</div></div><div class="guide-alerts"><div class="guide-error"><b>常見錯誤</b>${escapeHtml(ex.mistake)}</div><div class="guide-stop"><b>立即停止</b>${escapeHtml(ex.stop)}</div></div></details>`}
 
 function blankMealPhotos(){return{breakfast:[],lunch:[],dinner:[],snack:[]}}
 function normalizeMealPhotos(value){
@@ -132,7 +135,7 @@ async function loadCurriculum(){
  $('#version').textContent=`Curriculum v${curriculum.curriculumVersion}`;
  $('#target').textContent=`目標 ${curriculum.global.targetMinutes} 分鐘｜上限 ${curriculum.global.maximumMinutes} 分鐘`;
  renderCurriculum();
- await chooseDay(localStorage.getItem('currentDay')||'A');
+ await chooseDay(localStorage.getItem('currentDay')||scheduledDay());
 }
 
 async function setView(id){
@@ -144,7 +147,7 @@ async function setView(id){
 
 function renderCurriculum(){
  const box=$('#curriculumDays');box.innerHTML='';
- Object.entries(curriculum.days).forEach(([key,d])=>{const sec=document.createElement('section');sec.className='card';sec.innerHTML=`<div class="row"><div class="badge req">DAY ${key}</div><div><b>${escapeHtml(d.name)}</b><div class="small muted">${escapeHtml(d.focus)}</div></div></div>${d.exercises.map(ex=>`<div class="hist-item"><div class="row"><div class="grow"><b>${escapeHtml(ex.name)}</b><div class="small muted">${ex.sets} 組 × ${ex.perSide?'每側 ':''}${ex.minReps}–${ex.maxReps} 下｜${ex.weight?ex.weight+' kg':'徒手／彈力帶'}</div></div><span class="badge ${ex.priority==='required'?'req':'opt'}">${ex.priority==='required'?'必做':'選做'}</span></div><div class="small">${escapeHtml(ex.cue)}</div></div>`).join('')}`;box.appendChild(sec)});
+ Object.entries(curriculum.days).forEach(([key,d])=>{const sec=document.createElement('section');sec.className='card';sec.innerHTML=`<div class="row"><div class="badge req">DAY ${key}</div><div><b>${escapeHtml(d.name)}</b><div class="small muted">${escapeHtml(d.focus)}</div></div></div>${d.exercises.map(ex=>`<div class="hist-item"><div class="row"><div class="grow"><b>${escapeHtml(ex.name)}</b><div class="small muted">${ex.sets} 組 × ${ex.perSide?'每側 ':''}${ex.minReps}–${ex.maxReps} 下｜${ex.weight?ex.weight+' kg':'徒手'}｜休息 ${ex.restSeconds} 秒</div></div><span class="badge ${ex.saturdayOnly?'opt':'req'}">${ex.saturdayOnly?'週六':'固定'}</span></div>${exerciseGuide(ex)}</div>`).join('')}`;box.appendChild(sec)});
  $('#changelog').innerHTML=curriculum.changelog.map(c=>`<div class="card"><b>v${escapeHtml(c.version)}｜${escapeHtml(c.date)}</b>${c.changes.map(x=>`<div class="small muted">• ${escapeHtml(x)}</div>`).join('')}</div>`).join('');
 }
 
@@ -161,20 +164,20 @@ async function renderExercises(){
  let draft=await dbGet('drafts',draftId())||{id:draftId(),date:localDate(),day:currentDay,startedAt:Date.now(),values:{},health:{}};
  workoutStartedAt=draft.startedAt||Date.now();
  const h=draft.health||{},d=draft.diet||{};
- $('#sleep').value=h.sleep??'';$('#wrist').value=h.wrist??0;$('#knee').value=h.knee??0;$('#gerd').value=h.gerd||'無';
+ $('#sleep').value=h.sleep??'';$('#wrist').value=h.wrist??0;$('#shoulder').value=h.shoulder??0;$('#knee').value=h.knee??0;$('#gerd').value=h.gerd||'無';
  $('#dProtein').checked=Boolean(d.proteinMet);$('#dBeer').checked=Boolean(d.beer);$('#dChicken').checked=Boolean(d.chicken);$('#dCookie').checked=Boolean(d.cookie);$('#dLateEat').checked=Boolean(d.lateEat);
  $('#proteinGrams').value=d.proteinGrams??'';$('#waterMl').value=d.waterMl??'';$('#bodyWeight').value=d.bodyWeight??'';
  $('#breakfast').value=d.breakfast||'';$('#lunch').value=d.lunch||'';$('#dinner').value=d.dinner||'';$('#nutrition').value=d.note??h.nutrition??'';
  mealPhotos=normalizeMealPhotos(d.photos);renderMealPhotoPreviews();
- const box=$('#exerciseList');box.innerHTML='';
- curriculum.days[currentDay].exercises.forEach((ex,idx)=>{
+ const box=$('#exerciseList');box.innerHTML=currentDay==='C'&&new Date().getDay()!==6?'<div class="day-note">今天是一般 Day C；週六開啟時會自動增加 2 組站姿提踵。</div>':'';
+ activeExercises().forEach((ex,idx)=>{
   const val=draft.values?.[ex.id]||{};const c=document.createElement('article');c.className=`card exercise ${ex.priority}`;
   const setRows=Array.from({length:ex.sets},(_,i)=>{const s=(val.sets||[])[i]||{};return `<div class="set-grid"><div class="set-no">${i+1}</div><input inputmode="decimal" aria-label="重量" placeholder="kg" value="${escapeHtml(s.weight??ex.weight??'')}" data-ex="${ex.id}" data-set="${i}" data-f="weight"><input inputmode="numeric" aria-label="次數" placeholder="次數" value="${escapeHtml(s.reps??'')}" data-ex="${ex.id}" data-set="${i}" data-f="reps"><select aria-label="RPE" data-ex="${ex.id}" data-set="${i}" data-f="rpe"><option value="">RPE</option>${[5,6,7,8,9,10].map(n=>`<option ${String(s.rpe)===String(n)?'selected':''}>${n}</option>`).join('')}</select></div>`}).join('');
-  c.innerHTML=`<button class="exercise-toggle" type="button" aria-expanded="true"><span><span class="ex-name">${idx+1}. ${escapeHtml(ex.name)}</span><span class="small muted ex-meta">${ex.sets} 組 × ${ex.perSide?'每側 ':''}${ex.minReps}–${ex.maxReps} 下｜休息 ${ex.restSeconds} 秒</span></span><span class="row"><span class="badge ${ex.priority==='required'?'req':'opt'}">${ex.priority==='required'?'必做':'選做'}</span><span class="chevron">⌃</span></span></button><div class="exercise-body"><div class="cue">${escapeHtml(ex.cue)}</div>${setRows}<label>動作備註</label><textarea rows="2" data-note="${ex.id}" placeholder="疼痛、動作感受、太輕或太重">${escapeHtml(val.note||'')}</textarea></div>`;
+  c.innerHTML=`<button class="exercise-toggle" type="button" aria-expanded="true"><span><span class="ex-name">${idx+1}. ${escapeHtml(ex.name)}</span><span class="small muted ex-meta">${ex.sets} 組 × ${ex.perSide?'每側 ':''}${ex.minReps}–${ex.maxReps} 下｜休息 ${ex.restSeconds} 秒</span></span><span class="row"><span class="badge req">固定</span><span class="chevron">⌃</span></span></button><div class="exercise-body">${exerciseGuide(ex)}${setRows}<div class="exercise-actions"><button type="button" class="rest-btn" data-rest-seconds="${ex.restSeconds}">休息 ${ex.restSeconds} 秒</button><span class="small muted">節奏：${escapeHtml(ex.tempo)}</span></div><label>動作備註</label><textarea rows="2" data-note="${ex.id}" placeholder="疼痛、動作感受、太輕或太重">${escapeHtml(val.note||'')}</textarea></div>`;
   box.appendChild(c);
  });
  $$('.exercise-toggle').forEach(btn=>btn.addEventListener('click',()=>{const card=btn.closest('.exercise');const collapsed=card.classList.toggle('collapsed');btn.setAttribute('aria-expanded',String(!collapsed));$('.chevron',btn).textContent=collapsed?'⌄':'⌃'}));
- $$('[data-ex], [data-note], #sleep, #wrist, #knee, #gerd, #dProtein, #dBeer, #dChicken, #dCookie, #dLateEat, #proteinGrams, #waterMl, #bodyWeight, #breakfast, #lunch, #dinner, #nutrition').forEach(el=>{el.addEventListener('input',queueSaveDraft);el.addEventListener('change',queueSaveDraft)});
+ $$('[data-ex], [data-note], #sleep, #wrist, #shoulder, #knee, #gerd, #dProtein, #dBeer, #dChicken, #dCookie, #dLateEat, #proteinGrams, #waterMl, #bodyWeight, #breakfast, #lunch, #dinner, #nutrition').forEach(el=>{el.addEventListener('input',queueSaveDraft);el.addEventListener('change',queueSaveDraft)});
  $$('[data-photo-input]').forEach(input=>{input.onchange=()=>handleMealPhotoInput(input)});
  updateCompletion();
 }
@@ -183,18 +186,18 @@ let saveTimer=null;
 function queueSaveDraft(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveDraft().catch(console.error),180)}
 async function saveDraft(){
  const values={};
- curriculum.days[currentDay].exercises.forEach(ex=>{values[ex.id]={sets:[],note:$(`[data-note="${ex.id}"]`)?.value||''};for(let i=0;i<ex.sets;i++)values[ex.id].sets.push({weight:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="weight"]`)?.value||'',reps:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="reps"]`)?.value||'',rpe:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="rpe"]`)?.value||''})});
- const health={sleep:$('#sleep').value,wrist:number($('#wrist').value),knee:number($('#knee').value),gerd:$('#gerd').value};
+ activeExercises().forEach(ex=>{values[ex.id]={sets:[],note:$(`[data-note="${ex.id}"]`)?.value||''};for(let i=0;i<ex.sets;i++)values[ex.id].sets.push({weight:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="weight"]`)?.value||'',reps:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="reps"]`)?.value||'',rpe:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="rpe"]`)?.value||''})});
+ const health={sleep:$('#sleep').value,wrist:number($('#wrist').value),shoulder:number($('#shoulder').value),knee:number($('#knee').value),gerd:$('#gerd').value};
  const diet={proteinMet:$('#dProtein').checked,beer:$('#dBeer').checked,chicken:$('#dChicken').checked,cookie:$('#dCookie').checked,lateEat:$('#dLateEat').checked,proteinGrams:$('#proteinGrams').value,waterMl:$('#waterMl').value,bodyWeight:$('#bodyWeight').value,breakfast:$('#breakfast').value,lunch:$('#lunch').value,dinner:$('#dinner').value,note:$('#nutrition').value,photos:normalizeMealPhotos(mealPhotos)};
  await dbPut('drafts',{id:draftId(),date:localDate(),day:currentDay,startedAt:workoutStartedAt||Date.now(),updatedAt:Date.now(),values,health,diet});updateCompletion();
 }
 
 function completionStatsFromDom(){
  let reqDone=0,reqTotal=0,optDone=0,optTotal=0;
- curriculum.days[currentDay].exercises.forEach(ex=>{for(let i=0;i<ex.sets;i++){const done=Boolean($(`[data-ex="${ex.id}"][data-set="${i}"][data-f="reps"]`)?.value);if(ex.priority==='required'){reqTotal++;if(done)reqDone++}else{optTotal++;if(done)optDone++}}});
+ activeExercises().forEach(ex=>{for(let i=0;i<ex.sets;i++){const done=Boolean($(`[data-ex="${ex.id}"][data-set="${i}"][data-f="reps"]`)?.value);if(ex.priority==='required'){reqTotal++;if(done)reqDone++}else{optTotal++;if(done)optDone++}}});
  return{reqDone,reqTotal,optDone,optTotal,totalDone:reqDone+optDone,total:reqTotal+optTotal,requiredPercent:reqTotal?Math.round(reqDone/reqTotal*100):0,optionalPercent:optTotal?Math.round(optDone/optTotal*100):0,totalPercent:(reqTotal+optTotal)?Math.round((reqDone+optDone)/(reqTotal+optTotal)*100):0};
 }
-function updateCompletion(){const s=completionStatsFromDom();$('#progressBar').style.width=s.requiredPercent+'%';$('#progressText').textContent=`必做組完成 ${s.reqDone}/${s.reqTotal}（${s.requiredPercent}%）｜選做 ${s.optDone}/${s.optTotal}`}
+function updateCompletion(){const s=completionStatsFromDom();$('#progressBar').style.width=s.totalPercent+'%';$('#progressText').textContent=`完成 ${s.totalDone}/${s.total} 組（${s.totalPercent}%）`}
 
 function summarizeExercise(ex){
  const completed=(ex.sets||[]).filter(s=>number(s.reps)>0);
@@ -217,7 +220,7 @@ async function finishWorkout(){
  $('#finishBtn').disabled=true;$('#finishBtn').textContent='儲存中…';
  try{
   await saveDraft();const draft=await dbGet('drafts',draftId());const end=Date.now();
-  const exercises=curriculum.days[currentDay].exercises.map(ex=>({id:ex.id,name:ex.name,priority:ex.priority,perSide:ex.perSide,target:{sets:ex.sets,minReps:ex.minReps,maxReps:ex.maxReps},sets:draft.values[ex.id]?.sets||[],note:draft.values[ex.id]?.note||''}));
+  const exercises=activeExercises().map(ex=>({id:ex.id,name:ex.name,priority:ex.priority,perSide:ex.perSide,target:{sets:ex.sets,minReps:ex.minReps,maxReps:ex.maxReps},sets:draft.values[ex.id]?.sets||[],note:draft.values[ex.id]?.note||''}));
   const workout={id:`${localDate()}-${currentDay}-${end}`,date:localDate(),day:currentDay,curriculumVersion:curriculum.curriculumVersion,startedAt:draft.startedAt||workoutStartedAt||end,endedAt:end,durationMinutes:Math.max(1,Math.round((end-(draft.startedAt||workoutStartedAt||end))/60000)),health:draft.health||{},diet:draft.diet||{},exercises};
   const history=await dbAll('workouts');workout.stats=workoutStats(workout);workout.prs=await detectPRs(workout,history);await dbPut('workouts',workout);
   renderSummary(workout);await renderHistory();
@@ -228,8 +231,8 @@ function buildMarkdownReport(w){
  const s=w.stats||workoutStats(w),h=w.health||{},d=w.diet||{};
  const exercises=w.exercises.map(e=>{const done=(e.sets||[]).filter(x=>number(x.reps)>0);const lines=done.length?done.map((x,i)=>`- 第 ${i+1} 組：${number(x.weight)>0?`${x.weight} kg × `:''}${x.reps} 下${x.rpe?`，RPE ${x.rpe}`:''}`).join('\n'):'- 未完成';return `### ${e.name}${e.priority==='optional'?'（選做）':''}\n${lines}${e.note?`\n- 備註：${e.note}`:''}`}).join('\n\n');
  const prs=(w.prs||[]).length?(w.prs||[]).map(x=>`- ${x}`).join('\n'):'- 本次未判定新 PR（首次紀錄不列入 PR）';
- const warnings=[];if(s.highRpe)warnings.push(`RPE 9–10 共 ${s.highRpe} 組`);if(number(h.wrist)>=3)warnings.push(`左手腕疼痛 ${h.wrist}/10`);if(number(h.knee)>=3)warnings.push(`膝蓋疼痛 ${h.knee}/10`);if(h.gerd&&h.gerd!=='無')warnings.push(`胃食道逆流：${h.gerd}`);
- return `# 今日訓練報告\n\n- 日期：${w.date}\n- 課表：Day ${w.day}\n- 課表版本：v${w.curriculumVersion}\n- 訓練時間：${w.durationMinutes} 分鐘\n- 必做完成率：${s.reqDone}/${s.reqTotal}（${s.requiredPercent}%）\n- 選做完成率：${s.optDone}/${s.optTotal}（${s.optionalPercent}%）\n- 總完成組數：${s.totalDone}/${s.total}\n- 估算訓練量：${s.volume} kg·reps（單側動作按兩側計）\n\n## 身體狀況\n\n- 睡眠：${h.sleep||'未填'} 小時\n- 左手腕痛：${number(h.wrist)}/10\n- 膝蓋痛：${number(h.knee)}/10\n- 胃食道逆流：${h.gerd||'無'}\n\n## 訓練內容\n\n${exercises}\n\n## 今日 PR\n\n${prs}\n\n## 風險提示\n\n${warnings.length?warnings.map(x=>`- ${x}`).join('\n'):'- 無明顯警示'}\n\n## 今日飲食紀錄
+ const warnings=[];if(s.highRpe)warnings.push(`RPE 9–10 共 ${s.highRpe} 組`);if(number(h.wrist)>=3)warnings.push(`左手腕疼痛 ${h.wrist}/10`);if(number(h.shoulder)>=3)warnings.push(`左肩疼痛 ${h.shoulder}/10`);if(number(h.knee)>=3)warnings.push(`膝蓋疼痛 ${h.knee}/10`);if(h.gerd&&h.gerd!=='無')warnings.push(`胃食道逆流：${h.gerd}`);
+ return `# 今日訓練報告\n\n- 日期：${w.date}\n- 課表：Day ${w.day}\n- 課表版本：v${w.curriculumVersion}\n- 訓練時間：${w.durationMinutes} 分鐘\n- 完成率：${s.totalDone}/${s.total}（${s.totalPercent}%）\n- 估算訓練量：${s.volume} kg·reps（單側動作按兩側計）\n\n## 身體狀況\n\n- 睡眠：${h.sleep||'未填'} 小時\n- 左手腕痛：${number(h.wrist)}/10\n- 左肩痛：${number(h.shoulder)}/10\n- 膝蓋痛：${number(h.knee)}/10\n- 胃食道逆流：${h.gerd||'無'}\n\n## 訓練內容\n\n${exercises}\n\n## 今日 PR\n\n${prs}\n\n## 風險提示\n\n${warnings.length?warnings.map(x=>`- ${x}`).join('\n'):'- 無明顯警示'}\n\n## 今日飲食紀錄
 
 - 蛋白質達標（140g+）：${d.proteinMet?'是':'否'}
 - 蛋白質估計：${d.proteinGrams||'未填'}${d.proteinGrams?' g':''}
@@ -245,14 +248,14 @@ function buildMarkdownReport(w){
 - 早餐：${d.breakfast||'未記錄'}
 - 午餐：${d.lunch||'未記錄'}
 - 晚餐：${d.dinner||'未記錄'}
-- 加餐／恢復／腸胃備註：${d.note||'無'}\n\n## 餐點照片附件\n\n${photoAttachmentLines(w)}\n\n## 請 ChatGPT 分析\n\n請依據本次紀錄：\n\n1. 評估本次訓練品質、疲勞與恢復狀況。\n2. 檢查手腕、膝蓋及胃食道逆流風險。\n3. 逐動作判斷下次重量或次數是否需要調整。\n4. 檢查是否出現需降載、減量或停止動作的訊號。\n5. 依餐點照片與文字，分餐估算熱量、蛋白質、碳水與脂肪，提供合理區間並列出份量、用油及醬料假設。\n6. 加總全天攝取量，說明照片看不出的不確定因素及需要我補充的資訊。\n7. 評估蛋白質、飲水、酒精、炸物、零食及晚間飲食是否影響增肌減脂與恢復。\n8. 只有在累積證據足夠時才提出課表改版建議；先說明理由，不要直接修改課表。`;
+- 加餐／恢復／腸胃備註：${d.note||'無'}\n\n## 餐點照片附件\n\n${photoAttachmentLines(w)}\n\n## 請 ChatGPT 分析\n\n請依據本次紀錄：\n\n1. 評估本次訓練品質、疲勞與恢復狀況。\n2. 檢查左手腕、左肩、膝蓋及胃食道逆流風險。\n3. 逐動作判斷下次重量或次數是否需要調整。\n4. 檢查是否出現需降載、減量或停止動作的訊號。\n5. 依餐點照片與文字，分餐估算熱量、蛋白質、碳水與脂肪，提供合理區間並列出份量、用油及醬料假設。\n6. 加總全天攝取量，說明照片看不出的不確定因素及需要我補充的資訊。\n7. 評估蛋白質、飲水、酒精、炸物、零食及晚間飲食是否影響增肌減脂與恢復。\n8. 只有在累積證據足夠時才提出課表改版建議；先說明理由，不要直接修改課表。`;
 }
 
 function renderSummary(w){
  currentSummaryWorkout=w;
  const s=w.stats||workoutStats(w);currentReport=buildMarkdownReport(w);$('#report').textContent=currentReport;renderSummaryPhotos(w);
  $('#summaryHeadline').textContent=`Day ${w.day}｜${w.durationMinutes} 分鐘｜完成 ${s.totalDone}/${s.total} 組`;
- $('#summaryStats').innerHTML=[['必做完成',`${s.requiredPercent}%`,`${s.reqDone}/${s.reqTotal} 組`],['選做完成',`${s.optionalPercent}%`,`${s.optDone}/${s.optTotal} 組`],['訓練時間',`${w.durationMinutes} 分`,'上限 60 分'],['估算總量',`${s.volume}`,'kg·reps']].map(x=>`<div class="stat-card"><span>${x[0]}</span><b>${x[1]}</b><small>${x[2]}</small></div>`).join('');
+ $('#summaryStats').innerHTML=[['完成率',`${s.totalPercent}%`,`${s.totalDone}/${s.total} 組`],['訓練日',`Day ${w.day}`,'六日分化'],['訓練時間',`${w.durationMinutes} 分`,'上限 60 分'],['估算總量',`${s.volume}`,'kg·reps']].map(x=>`<div class="stat-card"><span>${x[0]}</span><b>${x[1]}</b><small>${x[2]}</small></div>`).join('');
  const pr=$('#prCard');if((w.prs||[]).length){pr.classList.remove('hidden');pr.innerHTML=`<b>今日 PR</b>${w.prs.map(x=>`<div class="pr-line">🏆 ${escapeHtml(x)}</div>`).join('')}`}else pr.classList.add('hidden');
  $('#workoutPanel').classList.add('hidden');$('#summaryPanel').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -266,7 +269,7 @@ function backToWorkout(){$('#summaryPanel').classList.add('hidden');$('#workoutP
 
 async function renderHistory(){
  const list=(await dbAll('workouts')).sort((a,b)=>(b.endedAt||0)-(a.endedAt||0));
- $('#historyList').innerHTML=list.length?list.map(w=>{const s=w.stats||workoutStats(w);return `<button class="history-entry" data-history-id="${escapeHtml(w.id)}"><span><b>${escapeHtml(w.date)}｜Day ${escapeHtml(w.day)}</b><small>必做 ${s.requiredPercent}%｜總組數 ${s.totalDone}/${s.total}｜蛋白質 ${w.diet?.proteinMet?'達標':'未達標'}｜照片 ${totalPhotoCount(w.diet||{})} 張｜手腕 ${number(w.health?.wrist)}/10｜膝蓋 ${number(w.health?.knee)}/10</small></span><span class="badge req">${w.durationMinutes} 分</span></button>`}).join(''):'<div class="empty">尚無 IndexedDB 訓練紀錄</div>';
+ $('#historyList').innerHTML=list.length?list.map(w=>{const s=w.stats||workoutStats(w);return `<button class="history-entry" data-history-id="${escapeHtml(w.id)}"><span><b>${escapeHtml(w.date)}｜Day ${escapeHtml(w.day)}</b><small>完成 ${s.totalPercent}%｜總組數 ${s.totalDone}/${s.total}｜蛋白質 ${w.diet?.proteinMet?'達標':'未達標'}｜照片 ${totalPhotoCount(w.diet||{})} 張｜手腕 ${number(w.health?.wrist)}/10｜左肩 ${number(w.health?.shoulder)}/10｜膝蓋 ${number(w.health?.knee)}/10</small></span><span class="badge req">${w.durationMinutes} 分</span></button>`}).join(''):'<div class="empty">尚無 IndexedDB 訓練紀錄</div>';
  $$('.history-entry').forEach(b=>b.addEventListener('click',async()=>{const w=await dbGet('workouts',b.dataset.historyId);if(w){await setView('todayView');renderSummary(w)}}));
 }
 
@@ -276,6 +279,12 @@ async function resetAll(){if(!confirm('確定清除本裝置全部訓練紀錄�
 
 function metroClick(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.12,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.08);o.connect(g).connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+.08)}
 function toggleMetro(){if(metroTimer){clearInterval(metroTimer);metroTimer=null;$('#metro').classList.remove('running');$('#metroBtn').textContent='開始'}else{metroClick();metroTimer=setInterval(metroClick,1000);$('#metro').classList.add('running');$('#metroBtn').textContent='停止'}}
+function resetRestButton(button){if(!button)return;button.classList.remove('running','done');button.textContent=`休息 ${button.dataset.restSeconds} 秒`}
+function startRestTimer(seconds,button){
+ if(restTimer){clearInterval(restTimer);restTimer=null;if(restButton===button){resetRestButton(button);restButton=null;return}resetRestButton(restButton)}
+ restButton=button;let remaining=seconds;button.classList.remove('done');button.classList.add('running');button.textContent=`休息中 ${remaining} 秒（取消）`;
+ restTimer=setInterval(()=>{remaining--;if(remaining>0){button.textContent=`休息中 ${remaining} 秒（取消）`;return}clearInterval(restTimer);restTimer=null;button.classList.remove('running');button.classList.add('done');button.textContent='下一組開始 ✓';restButton=null;metroClick();setTimeout(()=>resetRestButton(button),3000)},1000);
+}
 
 function updateVisualViewportOffset(){const vv=window.visualViewport;if(!vv){document.documentElement.style.setProperty('--visual-bottom-offset','0px');return}const layoutHeight=document.documentElement.clientHeight,visualBottom=vv.offsetTop+vv.height,offset=Math.max(0,Math.round(layoutHeight-visualBottom));document.documentElement.style.setProperty('--visual-bottom-offset',`${offset}px`)}
 if(window.visualViewport){window.visualViewport.addEventListener('resize',updateVisualViewportOffset);window.visualViewport.addEventListener('scroll',updateVisualViewportOffset)}
@@ -284,6 +293,7 @@ window.addEventListener('resize',updateVisualViewportOffset);window.addEventList
 document.addEventListener('click',e=>{
  if(e.target.matches('.tab'))setView(e.target.dataset.view);
  if(e.target.matches('.day-pill'))chooseDay(e.target.dataset.day);
+ const rest=e.target.closest('[data-rest-seconds]');if(rest){startRestTimer(number(rest.dataset.restSeconds),rest);return}
  const deleteButton=e.target.closest('[data-delete-photo]');
  if(deleteButton){
   const meal=deleteButton.dataset.photoMeal,id=deleteButton.dataset.deletePhoto;

@@ -31,8 +31,8 @@
     <div id="workoutPanel">
       <div class="card">
         <div class="row">
-          <div class="grow"><b id="dayTitle">今日訓練</b><div class="small muted">先完成必做；時間足夠再做選做</div></div>
-          <div class="day-pills"><button class="day-pill active" data-day="A">A</button><button class="day-pill" data-day="B">B</button></div>
+          <div class="grow"><b id="dayTitle">今日訓練</b><div class="small muted">每天 3～5 個固定動作；點開卡片就能看完整要領</div></div>
+          <div class="day-pills"><button class="day-pill active" data-day="A">A</button><button class="day-pill" data-day="B">B</button><button class="day-pill" data-day="C">C</button></div>
         </div>
         <div class="progress" style="margin-top:12px"><div id="progressBar"></div></div>
         <div id="progressText" class="small muted" style="margin-top:5px"></div>
@@ -42,6 +42,7 @@
         <div class="row">
           <div class="field smallfield"><label>睡眠（小時）</label><input id="sleep" inputmode="decimal"></div>
           <div class="field smallfield"><label>左手腕痛 0–10</label><input id="wrist" type="number" min="0" max="10" value="0"></div>
+          <div class="field smallfield"><label>左肩痛 0–10</label><input id="shoulder" type="number" min="0" max="10" value="0"></div>
           <div class="field smallfield"><label>膝蓋痛 0–10</label><input id="knee" type="number" min="0" max="10" value="0"></div>
           <div class="field"><label>胃食道逆流</label><select id="gerd"><option>無</option><option>輕微</option><option>明顯</option></select></div>
         </div>
@@ -150,7 +151,7 @@
   </section>
 
   <section id="curriculumView" class="view">
-    <div class="card"><b>V2 執行原則</b><div class="small muted">課表只負責執行；RPE、加重與改版判斷留到訓練後復盤。</div></div>
+    <div class="card"><b>V2 執行原則</b><div class="small muted">週一／四 A、週二／五 B、週三／六 C、週日休息。前兩輪以 RPE 6～7 熟悉動作，之後維持 RPE 7～8；逐組紀錄後再判斷是否加重。</div></div>
     <div id="curriculumDays"></div><h3>更新紀錄</h3><div id="changelog"></div>
   </section>
 

@@ -3,11 +3,11 @@
 *{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{margin:0;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;overflow-x:hidden;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))}.app{max-width:760px;margin:auto;padding:20px 16px 32px}.topbar{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:18px}
 .eyebrow{font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}.title{font-size:30px;font-weight:900;line-height:1.05;margin:4px 0}.version{font:12px ui-monospace,monospace;color:var(--red)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 10px rgba(35,25,15,.04)}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.grow{flex:1}.muted{color:var(--muted)}.small{font-size:12px}.hidden{display:none!important}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.grow{flex:1}.muted{color:var(--muted)}.small{font-size:13px}.hidden{display:none!important}
 button,select,input,textarea{font:inherit}button{border:0;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer;background:var(--ink);color:white}
 button.secondary{background:var(--surface2);color:var(--ink);border:1px solid var(--border)}button.danger{background:var(--red)}button.good{background:var(--green)}
 select,input,textarea{width:100%;border:1px solid var(--border);border-radius:9px;background:white;padding:10px;color:var(--ink)}
-label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:5px;letter-spacing:.4px}.field{min-width:100px;flex:1}.field.smallfield{max-width:120px}
+label{display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:5px;letter-spacing:.4px}.field{min-width:100px;flex:1}.field.smallfield{max-width:120px}
 .tabs{position:fixed;left:0;right:0;bottom:var(--visual-bottom-offset,0px);width:100%;z-index:1000;background:rgba(255,255,255,.97);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:7px calc(7px + env(safe-area-inset-right,0px)) calc(7px + env(safe-area-inset-bottom,0px)) calc(7px + env(safe-area-inset-left,0px));transform:translateZ(0);will-change:bottom;contain:layout paint}
 .tab{background:transparent;color:var(--muted);padding:8px 4px;font-size:12px}.tab.active{color:var(--red);background:#f8ece9}
 .view{display:none}.view.active{display:block}.day-pills{display:flex;gap:8px}.day-pill{background:var(--surface2);color:var(--ink)}.day-pill.active{background:var(--red);color:white}
@@ -55,8 +55,14 @@ label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bot
 .summary-photo img{aspect-ratio:4/3}
 .summary-actions-wide{grid-template-columns:repeat(2,minmax(0,1fr))}
 .share-note{text-align:center;margin:-2px 0 16px}
+.day-note{background:#edf4fb;border:1px solid #c8daed;color:#244b70;border-radius:12px;padding:11px 13px;margin:12px 0;font-size:13px}
+.form-guide{border:1px solid var(--border);border-radius:10px;margin:10px 0;background:#fff;overflow:hidden}.form-guide summary{cursor:pointer;font-weight:850;padding:11px 12px;color:var(--blue)}.form-guide[open] summary{border-bottom:1px solid var(--border)}
+.guide-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px}.guide-step{background:var(--surface2);border-radius:9px;padding:9px;font-size:13px;line-height:1.5}.guide-step b{display:block;color:var(--red);margin-bottom:3px}
+.guide-alerts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 10px 10px}.guide-error,.guide-stop{border-radius:9px;padding:9px;font-size:13px;line-height:1.5}.guide-error{background:#fff6dc;color:#694e00}.guide-stop{background:#fbe8e5;color:#7e251d}.guide-alerts b{display:block;margin-bottom:3px}
+.exercise-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 0}.rest-btn{background:var(--blue);min-width:145px}.rest-btn.running{background:var(--gold)}.rest-btn.done{background:var(--green)}
 @media(max-width:560px){
  .meal-photo-grid{grid-template-columns:1fr}
  .summary-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .summary-actions-wide{grid-template-columns:1fr}
+ .guide-flow,.guide-alerts{grid-template-columns:1fr}
 }
