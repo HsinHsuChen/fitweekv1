@@ -23,7 +23,8 @@
 
   <div id="metro" class="metro">
     <div class="metro-dot"></div>
-    <div class="grow"><b>60 BPM 節拍器</b><div class="small" style="opacity:.65">切換頁籤不會中斷</div></div>
+    <div class="grow"><b>60 BPM｜5 拍循環</b><div class="small" style="opacity:.65">第 1 拍重音；切換或縮小分頁仍持續播放</div></div>
+    <div id="metroBeat" class="metro-beat" aria-live="polite">1／5</div>
     <button id="metroBtn" class="secondary">開始</button>
   </div>
 
@@ -152,6 +153,7 @@
 
   <section id="curriculumView" class="view">
     <div class="card"><b>V2 執行原則</b><div class="small muted">週一／四 A、週二／五 B、週三／六 C、週日休息。前兩輪以 RPE 6～7 熟悉動作，之後維持 RPE 7～8；逐組紀錄後再判斷是否加重。</div></div>
+    <div class="card"><b>現有器材與安全限制</b><div id="equipmentSummary" class="small muted"></div><div id="equipmentSafety" class="equipment-warning small"></div></div>
     <div id="curriculumDays"></div><h3>更新紀錄</h3><div id="changelog"></div>
   </section>
 

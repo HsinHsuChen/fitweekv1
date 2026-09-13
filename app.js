@@ -1,6 +1,6 @@
 const $=(s,el=document)=>el.querySelector(s);
 const $$=(s,el=document)=>[...el.querySelectorAll(s)];
-let curriculum=null,currentDay='A',metroTimer=null,audioCtx=null,workoutStartedAt=null,currentReport='',currentSummaryWorkout=null,restTimer=null,restButton=null;
+let curriculum=null,currentDay='A',metroTimer=null,metroAudio=null,metroAudioUrl='',metroRunning=false,audioCtx=null,workoutStartedAt=null,currentReport='',currentSummaryWorkout=null,restTimer=null,restButton=null;
 const MEAL_LABELS={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'加餐／宵夜'};
 const MAX_PHOTOS_PER_MEAL=2;
 let mealPhotos={breakfast:[],lunch:[],dinner:[],snack:[]};
@@ -147,6 +147,8 @@ async function setView(id){
 
 function renderCurriculum(){
  const box=$('#curriculumDays');box.innerHTML='';
+ $('#equipmentSummary').textContent=(curriculum.global.equipment||[]).join('、');
+ $('#equipmentSafety').textContent=curriculum.global.equipmentSafety||'';
  Object.entries(curriculum.days).forEach(([key,d])=>{const sec=document.createElement('section');sec.className='card';sec.innerHTML=`<div class="row"><div class="badge req">DAY ${key}</div><div><b>${escapeHtml(d.name)}</b><div class="small muted">${escapeHtml(d.focus)}</div></div></div>${d.exercises.map(ex=>`<div class="hist-item"><div class="row"><div class="grow"><b>${escapeHtml(ex.name)}</b><div class="small muted">${ex.sets} 組 × ${ex.perSide?'每側 ':''}${ex.minReps}–${ex.maxReps} 下｜${ex.weight?ex.weight+' kg':'徒手'}｜休息 ${ex.restSeconds} 秒</div></div><span class="badge ${ex.saturdayOnly?'opt':'req'}">${ex.saturdayOnly?'週六':'固定'}</span></div>${exerciseGuide(ex)}</div>`).join('')}`;box.appendChild(sec)});
  $('#changelog').innerHTML=curriculum.changelog.map(c=>`<div class="card"><b>v${escapeHtml(c.version)}｜${escapeHtml(c.date)}</b>${c.changes.map(x=>`<div class="small muted">• ${escapeHtml(x)}</div>`).join('')}</div>`).join('');
 }
@@ -278,7 +280,31 @@ async function importData(file){try{const data=JSON.parse(await file.text());for
 async function resetAll(){if(!confirm('確定清除本裝置全部訓練紀錄？此動作無法復原。'))return;await dbClear('workouts');await dbClear('drafts');await dbClear('settings');await renderHistory();await renderExercises()}
 
 function metroClick(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.12,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.08);o.connect(g).connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+.08)}
-function toggleMetro(){if(metroTimer){clearInterval(metroTimer);metroTimer=null;$('#metro').classList.remove('running');$('#metroBtn').textContent='開始'}else{metroClick();metroTimer=setInterval(metroClick,1000);$('#metro').classList.add('running');$('#metroBtn').textContent='停止'}}
+function writeWavText(view,offset,text){for(let i=0;i<text.length;i++)view.setUint8(offset+i,text.charCodeAt(i))}
+function makeMetronomeWav(){
+ const sampleRate=44100,seconds=5,frames=sampleRate*seconds,samples=new Float32Array(frames);
+ for(let beat=0;beat<5;beat++){
+  const accent=beat===0,frequency=accent?660:880,gain=accent?.72:.38,length=Math.round(sampleRate*(accent?.12:.08)),start=beat*sampleRate;
+  for(let i=0;i<length;i++){const envelope=Math.exp(-i/(sampleRate*(accent?.038:.026))),attack=Math.min(1,i/(sampleRate*.003));samples[start+i]+=Math.sin(2*Math.PI*frequency*i/sampleRate)*gain*envelope*attack}
+ }
+ const buffer=new ArrayBuffer(44+frames*2),view=new DataView(buffer);writeWavText(view,0,'RIFF');view.setUint32(4,36+frames*2,true);writeWavText(view,8,'WAVE');writeWavText(view,12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,sampleRate,true);view.setUint32(28,sampleRate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);writeWavText(view,36,'data');view.setUint32(40,frames*2,true);
+ for(let i=0;i<frames;i++)view.setInt16(44+i*2,Math.max(-1,Math.min(1,samples[i]))*32767,true);
+ return new Blob([buffer],{type:'audio/wav'});
+}
+function ensureMetroAudio(){
+ if(metroAudio)return metroAudio;
+ metroAudioUrl=URL.createObjectURL(makeMetronomeWav());metroAudio=new Audio(metroAudioUrl);metroAudio.loop=true;metroAudio.preload='auto';metroAudio.playsInline=true;metroAudio.setAttribute('playsinline','');
+ if('mediaSession'in navigator){try{if('MediaMetadata'in window)navigator.mediaSession.metadata=new MediaMetadata({title:'60 BPM｜5 拍訓練節拍器',artist:'Training System',album:'第 1 拍重音'});navigator.mediaSession.setActionHandler('play',startMetro);navigator.mediaSession.setActionHandler('pause',stopMetro);navigator.mediaSession.setActionHandler('stop',stopMetro)}catch(e){console.debug('Media Session unavailable',e)}}
+ return metroAudio;
+}
+function updateMetroVisual(){const beat=metroAudio&&metroRunning?Math.floor((metroAudio.currentTime+.04)%5)+1:1,display=$('#metroBeat');if(display.textContent!==`${beat}／5`)display.textContent=`${beat}／5`;display.classList.toggle('accent',metroRunning&&beat===1)}
+async function startMetro(){
+ const audio=ensureMetroAudio();audio.currentTime=0;
+ try{await audio.play();metroRunning=true;$('#metro').classList.add('running');$('#metroBtn').textContent='停止';clearInterval(metroTimer);metroTimer=setInterval(updateMetroVisual,120);updateMetroVisual();if('mediaSession'in navigator)navigator.mediaSession.playbackState='playing'}catch(error){metroRunning=false;alert('瀏覽器阻擋音訊播放，請再按一次「開始」。')}
+}
+function stopMetro(){metroRunning=false;if(metroAudio){metroAudio.pause();metroAudio.currentTime=0}clearInterval(metroTimer);metroTimer=null;$('#metro').classList.remove('running');$('#metroBtn').textContent='開始';updateMetroVisual();if('mediaSession'in navigator)navigator.mediaSession.playbackState='paused'}
+function toggleMetro(){if(metroRunning)stopMetro();else startMetro()}
+async function resumeMetroIfNeeded(){if(metroRunning&&metroAudio?.paused){try{await metroAudio.play()}catch(e){console.debug('Background audio resume requires interaction',e)}}updateMetroVisual()}
 function resetRestButton(button){if(!button)return;button.classList.remove('running','done');button.textContent=`休息 ${button.dataset.restSeconds} 秒`}
 function startRestTimer(seconds,button){
  if(restTimer){clearInterval(restTimer);restTimer=null;if(restButton===button){resetRestButton(button);restButton=null;return}resetRestButton(restButton)}
@@ -289,6 +315,8 @@ function startRestTimer(seconds,button){
 function updateVisualViewportOffset(){const vv=window.visualViewport;if(!vv){document.documentElement.style.setProperty('--visual-bottom-offset','0px');return}const layoutHeight=document.documentElement.clientHeight,visualBottom=vv.offsetTop+vv.height,offset=Math.max(0,Math.round(layoutHeight-visualBottom));document.documentElement.style.setProperty('--visual-bottom-offset',`${offset}px`)}
 if(window.visualViewport){window.visualViewport.addEventListener('resize',updateVisualViewportOffset);window.visualViewport.addEventListener('scroll',updateVisualViewportOffset)}
 window.addEventListener('resize',updateVisualViewportOffset);window.addEventListener('orientationchange',()=>setTimeout(updateVisualViewportOffset,150));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)resumeMetroIfNeeded()});window.addEventListener('pageshow',resumeMetroIfNeeded);
+window.addEventListener('beforeunload',()=>{if(metroAudioUrl)URL.revokeObjectURL(metroAudioUrl)});
 
 document.addEventListener('click',e=>{
  if(e.target.matches('.tab'))setView(e.target.dataset.view);

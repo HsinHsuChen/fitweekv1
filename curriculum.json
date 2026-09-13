@@ -1,19 +1,28 @@
 {
-  "appVersion": "2.0.0",
+  "appVersion": "2.0.1",
   "curriculumVersion": "2.0",
-  "updatedAt": "2026-09-10",
+  "updatedAt": "2026-09-13",
   "global": {
     "bpm": 60,
-    "targetMinutes": 35,
+    "targetMinutes": 40,
     "maximumMinutes": 60,
     "restSeconds": 90,
     "coreRestSeconds": 60,
-    "principle": "每天只做 3～5 個固定動作；前兩輪先用 RPE 6～7 熟悉動作，再進入 RPE 7～8。"
+    "principle": "每天只做 3～5 個固定動作；前兩輪先用 RPE 6～7 熟悉動作，再進入 RPE 7～8。",
+    "equipment": [
+      "可調式啞鈴一對",
+      "可調角度訓練椅",
+      "槓鈴與槓片",
+      "引體向上／雙槓／抬腿訓練架",
+      "黃色與紅色環狀阻力帶",
+      "運動地墊"
+    ],
+    "equipmentSafety": "照片未見深蹲架、槓鈴臥推掛架或安全桿；目前不安排無人保護的槓鈴臥推及槓鈴背蹲。雙槓撐體因左肩曾卡響，暫不列入正式課表。"
   },
   "days": {
     "A": {
       "name": "上胸＋側肩＋三頭",
-      "focus": "週一／週四｜固定 3 個動作、正式 8 組",
+      "focus": "週一／週四｜固定 3 個動作、正式 9 組",
       "exercises": [
         {
           "id": "incline-db-press",
@@ -38,7 +47,7 @@
           "name": "啞鈴側平舉",
           "priority": "required",
           "weight": 4,
-          "sets": 3,
+          "sets": 4,
           "minReps": 12,
           "maxReps": 20,
           "perSide": false,
@@ -73,14 +82,32 @@
     },
     "B": {
       "name": "背部＋後肩＋二頭",
-      "focus": "週二／週五｜固定 3 個動作、正式 8 組",
+      "focus": "週二／週五｜固定 4 個動作、正式 11 組",
       "exercises": [
+        {
+          "id": "band-assisted-pull-up",
+          "name": "阻力帶輔助引體向上",
+          "priority": "required",
+          "weight": 0,
+          "sets": 3,
+          "minReps": 5,
+          "maxReps": 10,
+          "perSide": false,
+          "cue": "先把肩膀往下放，再讓手肘往肋骨靠近；不要用甩的上槓。",
+          "setup": "確認訓練架穩固，把阻力帶牢靠套在單槓中央；以膝蓋壓住阻力帶，雙手採肩寬或略寬握距。",
+          "execution": "先微收腹、肩胛下沉，再將胸口朝單槓方向帶近，想像手肘往下塞進口袋。",
+          "return": "控制 2～3 秒下降，手肘接近伸直即可，不要突然鬆掉沉到最底。",
+          "mistake": "踢腿擺盪、聳肩、脖子硬伸過槓，或把阻力帶踩在容易滑脫的腳尖。",
+          "stop": "左肩夾痛、卡住、手麻，或訓練架及阻力帶出現鬆動；當組立即停止。",
+          "tempo": "上 1 秒、下 2～3 秒",
+          "restSeconds": 120
+        },
         {
           "id": "chest-supported-row",
           "name": "胸靠斜椅啞鈴划船",
           "priority": "required",
           "weight": 8,
-          "sets": 4,
+          "sets": 3,
           "minReps": 8,
           "maxReps": 12,
           "perSide": false,
@@ -98,7 +125,7 @@
           "name": "胸靠斜椅反向飛鳥",
           "priority": "required",
           "weight": 2.5,
-          "sets": 2,
+          "sets": 3,
           "minReps": 12,
           "maxReps": 20,
           "perSide": false,
@@ -133,7 +160,7 @@
     },
     "C": {
       "name": "腿臀＋核心",
-      "focus": "週三 10 組｜週六自動加入小腿，共 12 組",
+      "focus": "週三 11 組｜週六自動加入小腿，共 13 組",
       "exercises": [
         {
           "id": "dead-bug",
@@ -190,20 +217,20 @@
           "restSeconds": 90
         },
         {
-          "id": "glute-bridge",
-          "name": "啞鈴臀橋",
+          "id": "db-hip-thrust",
+          "name": "啞鈴臀推",
           "priority": "required",
           "weight": 11.5,
-          "sets": 2,
+          "sets": 3,
           "minReps": 10,
           "maxReps": 15,
           "perSide": false,
-          "cue": "腳跟踩地、肋骨收好；頂端夾臀 1 秒，不要用腰往上頂。",
-          "setup": "仰躺屈膝，啞鈴加墊後放在髖部，雙腳踩穩。",
-          "execution": "吐氣收腹，以腳跟發力抬起髖部。",
-          "return": "頂端夾臀 1 秒，再控制 2 秒下降。",
-          "mistake": "腰過度後彎、膝蓋內夾或只用腳尖推地。",
-          "stop": "下背或髖部疼痛；先拿掉重量再測試。",
+          "cue": "上背靠穩椅緣、腳跟踩地、肋骨收好；頂端夾臀，不要用腰往上折。",
+          "setup": "確認訓練椅不會滑動，上背肩胛下緣靠住椅緣，啞鈴加墊後放在髖部。",
+          "execution": "下巴微收、吐氣收腹，以腳跟發力將髖部推高，頂端軀幹接近水平。",
+          "return": "頂端夾臀 1 秒，再控制 2 秒下降，保持啞鈴穩定。",
+          "mistake": "椅子滑動、腰過度後彎、膝蓋內夾、腳放得太遠，或只用腳尖推地。",
+          "stop": "下背或髖部疼痛、椅子不穩；先拿掉重量並改回地板臀橋。",
           "tempo": "頂端停 1 秒",
           "restSeconds": 60
         },
@@ -230,6 +257,17 @@
     }
   },
   "changelog": [
+    {
+      "version": "2.0",
+      "date": "2026-09-13",
+      "changes": [
+        "依實際器材加入阻力帶輔助引體向上，建立垂直拉與闊背刺激",
+        "側平舉調整為每次 4 組、後肩反向飛鳥每次 3 組",
+        "臀橋升級為使用訓練椅的啞鈴臀推，每次 3 組",
+        "節拍器改為第 1 拍重音加 4 拍原音的 5 拍循環",
+        "節拍器改用原生循環音訊，提升背景分頁與網頁縮小時的持續播放能力"
+      ]
+    },
     {
       "version": "2.0",
       "date": "2026-09-10",
