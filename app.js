@@ -17,8 +17,24 @@ function draftId(day=currentDay){return `draft-${localDate()}-${day}`}
 function number(v){const n=Number(v);return Number.isFinite(n)?n:0}
 function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function scheduledDay(){const day=new Date().getDay();if(day===2||day===5)return'B';if(day===3||day===6)return'C';return'A'}
-function activeExercises(day=currentDay){const list=curriculum?.days?.[day]?.exercises||[],isSaturday=new Date().getDay()===6;return list.filter(ex=>!ex.saturdayOnly||isSaturday)}
-function exerciseGuide(ex){return `<div class="cue"><b>一句要領：</b>${escapeHtml(ex.cue)}</div><details class="form-guide"><summary>查看完整動作要領</summary><div class="guide-flow"><div class="guide-step"><b>1｜起始</b>${escapeHtml(ex.setup)}</div><div class="guide-step"><b>2｜動作</b>${escapeHtml(ex.execution)}</div><div class="guide-step"><b>3｜回位</b>${escapeHtml(ex.return)}</div></div><div class="guide-alerts"><div class="guide-error"><b>常見錯誤</b>${escapeHtml(ex.mistake)}</div><div class="guide-stop"><b>立即停止</b>${escapeHtml(ex.stop)}</div></div></details>`}
+function activeExercises(day=currentDay,date=new Date()){
+ const d=curriculum?.days?.[day],weekday=date.getDay();
+ const list=(d?.exercises||[]).filter(ex=>!ex.saturdayOnly||weekday===6);
+ const order=d?.exerciseOrderByWeekday?.[weekday];
+ if(!order)return list;
+ const ranks=new Map(order.map((id,index)=>[id,index]));
+ return list.sort((a,b)=>(ranks.get(a.id)??order.length)-(ranks.get(b.id)??order.length));
+}
+function sessionFocus(day=currentDay,date=new Date()){const d=curriculum?.days?.[day];return d?.sessionFocusByWeekday?.[date.getDay()]||d?.defaultSessionFocus||''}
+function sessionNote(day=currentDay,date=new Date()){
+ const d=curriculum?.days?.[day];
+ if(date.getDay()===0)return `今天週日，原定休息。下方顯示你選擇的 ${day} 日課表。`;
+ if(day==='A')return `本次 A 日：${sessionFocus(day,date)}。${d?.scheduleNote||''}`;
+ if(day==='C')return date.getDay()===6?'週六 C 日：核心、腿臀與提踵，共 13 組。Dead Bug 先做核心啟動，不做到力竭。':'一般 C 日：核心與腿臀，共 11 組；週六自動加入 2 組站姿提踵。Dead Bug 不做到力竭。';
+ return d?.sessionNote||'';
+}
+function exerciseLoadLabel(ex){return ex.loadDescription||(ex.weight==null?'自行選擇起始重量':ex.weight?`${ex.weight} kg`:'徒手')}
+function exerciseGuide(ex){return `<div class="cue"><b>一句要領：</b>${escapeHtml(ex.cue)}</div>${ex.effort?`<div class="small muted">${escapeHtml(ex.effort)}</div>`:''}${ex.loadDescription?`<div class="small muted">${escapeHtml(ex.loadDescription)}</div>`:''}<details class="form-guide"><summary>查看完整動作要領</summary><div class="guide-flow"><div class="guide-step"><b>1｜起始</b>${escapeHtml(ex.setup)}</div><div class="guide-step"><b>2｜動作</b>${escapeHtml(ex.execution)}</div><div class="guide-step"><b>3｜回位</b>${escapeHtml(ex.return)}</div></div><div class="guide-alerts"><div class="guide-error"><b>常見錯誤</b>${escapeHtml(ex.mistake)}</div><div class="guide-stop"><b>立即停止</b>${escapeHtml(ex.stop)}</div></div></details>`}
 
 function blankMealPhotos(){return{breakfast:[],lunch:[],dinner:[],snack:[]}}
 function normalizeMealPhotos(value){
@@ -135,7 +151,8 @@ async function loadCurriculum(){
  $('#version').textContent=`Curriculum v${curriculum.curriculumVersion}｜App v${curriculum.appVersion}`;
  $('#target').textContent=`目標 ${curriculum.global.targetMinutes} 分鐘｜上限 ${curriculum.global.maximumMinutes} 分鐘`;
  renderCurriculum();
- await chooseDay(localStorage.getItem('currentDay')||scheduledDay());
+ const savedDay=localStorage.getItem('currentDayDate')===localDate()?localStorage.getItem('currentDay'):null;
+ await chooseDay(savedDay||scheduledDay());
 }
 
 async function setView(id){
@@ -147,17 +164,20 @@ async function setView(id){
 
 function renderCurriculum(){
  const box=$('#curriculumDays');box.innerHTML='';
+ const principle=$('#trainingPrinciple'),progression=$('#progressionRule');
+ if(principle)principle.textContent=curriculum.global.principle||'';
+ if(progression)progression.textContent=curriculum.global.progressionRule||'';
  $('#equipmentSummary').textContent=(curriculum.global.equipment||[]).join('、');
  $('#equipmentSafety').textContent=curriculum.global.equipmentSafety||'';
- Object.entries(curriculum.days).forEach(([key,d])=>{const sec=document.createElement('section');sec.className='card';sec.innerHTML=`<div class="row"><div class="badge req">DAY ${key}</div><div><b>${escapeHtml(d.name)}</b><div class="small muted">${escapeHtml(d.focus)}</div></div></div>${d.exercises.map(ex=>`<div class="hist-item"><div class="row"><div class="grow"><b>${escapeHtml(ex.name)}</b><div class="small muted">${ex.sets} 組 × ${ex.perSide?'每側 ':''}${ex.minReps}–${ex.maxReps} 下｜${ex.weight?ex.weight+' kg':'徒手'}｜休息 ${ex.restSeconds} 秒</div></div><span class="badge ${ex.saturdayOnly?'opt':'req'}">${ex.saturdayOnly?'週六':'固定'}</span></div>${exerciseGuide(ex)}</div>`).join('')}`;box.appendChild(sec)});
+ Object.entries(curriculum.days).forEach(([key,d])=>{const sec=document.createElement('section');sec.className='card';sec.innerHTML=`<div class="row"><div class="badge req">DAY ${key}</div><div><b>${escapeHtml(d.name)}</b><div class="small muted">${escapeHtml(d.focus)}</div></div></div>${d.scheduleNote||d.sessionNote?`<div class="day-note">${escapeHtml(d.scheduleNote||d.sessionNote)}</div>`:''}${d.exercises.map(ex=>`<div class="hist-item"><div class="row"><div class="grow"><b>${escapeHtml(ex.name)}</b><div class="small muted">${ex.sets} 組 × ${ex.perSide?'每側 ':''}${ex.minReps}–${ex.maxReps} 下｜${escapeHtml(exerciseLoadLabel(ex))}｜休息 ${ex.restSeconds} 秒</div></div><span class="badge ${ex.saturdayOnly?'opt':'req'}">${ex.saturdayOnly?'週六':'固定'}</span></div>${exerciseGuide(ex)}</div>`).join('')}`;box.appendChild(sec)});
  $('#changelog').innerHTML=curriculum.changelog.map(c=>`<div class="card"><b>v${escapeHtml(c.version)}｜${escapeHtml(c.date)}</b>${c.changes.map(x=>`<div class="small muted">• ${escapeHtml(x)}</div>`).join('')}</div>`).join('');
 }
 
 async function chooseDay(day){
  if(curriculum&&!curriculum.days[day])day='A';
- currentDay=day;localStorage.setItem('currentDay',day);
+ currentDay=day;localStorage.setItem('currentDay',day);localStorage.setItem('currentDayDate',localDate());
  $$('.day-pill').forEach(b=>b.classList.toggle('active',b.dataset.day===day));
- $('#dayTitle').textContent=`Day ${day}｜${curriculum.days[day].name}`;
+ const focus=sessionFocus(day);$('#dayTitle').textContent=`Day ${day}｜${curriculum.days[day].name}${focus?`｜${focus}`:''}`;
  $('#summaryPanel').classList.add('hidden');$('#workoutPanel').classList.remove('hidden');
  await renderExercises();
 }
@@ -171,7 +191,7 @@ async function renderExercises(){
  $('#proteinGrams').value=d.proteinGrams??'';$('#waterMl').value=d.waterMl??'';$('#bodyWeight').value=d.bodyWeight??'';
  $('#breakfast').value=d.breakfast||'';$('#lunch').value=d.lunch||'';$('#dinner').value=d.dinner||'';$('#nutrition').value=d.note??h.nutrition??'';
  mealPhotos=normalizeMealPhotos(d.photos);renderMealPhotoPreviews();
- const box=$('#exerciseList');box.innerHTML=currentDay==='C'&&new Date().getDay()!==6?'<div class="day-note">今天是一般 Day C；週六開啟時會自動增加 2 組站姿提踵。</div>':'';
+ const box=$('#exerciseList'),note=sessionNote();box.innerHTML=note?`<div class="day-note">${escapeHtml(note)}</div>`:'';
  activeExercises().forEach((ex,idx)=>{
   const val=draft.values?.[ex.id]||{};const c=document.createElement('article');c.className=`card exercise ${ex.priority}`;
   const setRows=Array.from({length:ex.sets},(_,i)=>{const s=(val.sets||[])[i]||{};return `<div class="set-grid"><div class="set-no">${i+1}</div><input inputmode="decimal" aria-label="重量" placeholder="kg" value="${escapeHtml(s.weight??ex.weight??'')}" data-ex="${ex.id}" data-set="${i}" data-f="weight"><input inputmode="numeric" aria-label="次數" placeholder="次數" value="${escapeHtml(s.reps??'')}" data-ex="${ex.id}" data-set="${i}" data-f="reps"><select aria-label="RPE" data-ex="${ex.id}" data-set="${i}" data-f="rpe"><option value="">RPE</option>${[5,6,7,8,9,10].map(n=>`<option ${String(s.rpe)===String(n)?'selected':''}>${n}</option>`).join('')}</select></div>`}).join('');
@@ -187,11 +207,14 @@ async function renderExercises(){
 let saveTimer=null;
 function queueSaveDraft(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveDraft().catch(console.error),180)}
 async function saveDraft(){
+ const id=draftId(),date=localDate(),day=currentDay,focus=sessionFocus(),startedAt=workoutStartedAt||Date.now();
  const values={};
  activeExercises().forEach(ex=>{values[ex.id]={sets:[],note:$(`[data-note="${ex.id}"]`)?.value||''};for(let i=0;i<ex.sets;i++)values[ex.id].sets.push({weight:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="weight"]`)?.value||'',reps:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="reps"]`)?.value||'',rpe:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="rpe"]`)?.value||''})});
  const health={sleep:$('#sleep').value,wrist:number($('#wrist').value),shoulder:number($('#shoulder').value),knee:number($('#knee').value),gerd:$('#gerd').value};
  const diet={proteinMet:$('#dProtein').checked,beer:$('#dBeer').checked,chicken:$('#dChicken').checked,cookie:$('#dCookie').checked,lateEat:$('#dLateEat').checked,proteinGrams:$('#proteinGrams').value,waterMl:$('#waterMl').value,bodyWeight:$('#bodyWeight').value,breakfast:$('#breakfast').value,lunch:$('#lunch').value,dinner:$('#dinner').value,note:$('#nutrition').value,photos:normalizeMealPhotos(mealPhotos)};
- await dbPut('drafts',{id:draftId(),date:localDate(),day:currentDay,startedAt:workoutStartedAt||Date.now(),updatedAt:Date.now(),values,health,diet});updateCompletion();
+ const previous=await dbGet('drafts',id);
+ Object.entries(values).forEach(([key,value])=>{value.sets.push(...(previous?.values?.[key]?.sets||[]).slice(value.sets.length))});
+ await dbPut('drafts',{id,date,day,sessionFocus:focus,startedAt,updatedAt:Date.now(),values:{...(previous?.values||{}),...values},health,diet});updateCompletion();
 }
 
 function completionStatsFromDom(){
@@ -213,8 +236,17 @@ function workoutStats(w){
 }
 
 async function detectPRs(workout,history){
- const prior=history.filter(w=>w.day===workout.day&&w.endedAt<workout.endedAt);const prs=[];
- for(const ex of workout.exercises){const now=summarizeExercise(ex);if(!now.completedSets)continue;let oldWeight=0,oldReps=0,oldVolume=0;prior.forEach(w=>{const p=w.exercises?.find(x=>x.id===ex.id||x.name===ex.name);if(p){const s=summarizeExercise({...p,perSide:ex.perSide});oldWeight=Math.max(oldWeight,s.maxWeight);oldReps=Math.max(oldReps,s.maxReps);oldVolume=Math.max(oldVolume,s.volume)}});if(prior.length&&now.maxWeight>oldWeight)prs.push(`${ex.name}：重量 PR ${oldWeight || 0} → ${now.maxWeight} kg`);if(prior.length&&now.maxReps>oldReps)prs.push(`${ex.name}：次數 PR ${oldReps || 0} → ${now.maxReps} 下`);if(prior.length&&now.volume>oldVolume&&oldVolume>0)prs.push(`${ex.name}：總量 PR ${Math.round(oldVolume)} → ${Math.round(now.volume)}`)}
+ const prior=history.filter(w=>w.day===workout.day&&w.endedAt<workout.endedAt&&(!workout.sessionFocus||w.sessionFocus===workout.sessionFocus));const prs=[];
+ for(const ex of workout.exercises){
+  const now=summarizeExercise(ex);if(!now.completedSets)continue;
+  const previous=prior.map(w=>w.exercises?.find(x=>x.id===ex.id||x.name===ex.name)).filter(p=>p&&summarizeExercise(p).completedSets);
+  if(!previous.length)continue;
+  let oldWeight=0,oldReps=0,oldVolume=0;
+  previous.forEach(p=>{const s=summarizeExercise(p);oldWeight=Math.max(oldWeight,s.maxWeight);oldReps=Math.max(oldReps,s.maxReps);oldVolume=Math.max(oldVolume,s.volume)});
+  if(now.maxWeight>oldWeight)prs.push(`${ex.name}：重量 PR ${oldWeight} → ${now.maxWeight} kg`);
+  if(now.maxReps>oldReps)prs.push(`${ex.name}：次數 PR ${oldReps} → ${now.maxReps} 下`);
+  if(now.volume>oldVolume&&oldVolume>0)prs.push(`${ex.name}：總量 PR ${Math.round(oldVolume)} → ${Math.round(now.volume)}`);
+ }
  return prs;
 }
 
@@ -222,8 +254,8 @@ async function finishWorkout(){
  $('#finishBtn').disabled=true;$('#finishBtn').textContent='儲存中…';
  try{
   await saveDraft();const draft=await dbGet('drafts',draftId());const end=Date.now();
-  const exercises=activeExercises().map(ex=>({id:ex.id,name:ex.name,priority:ex.priority,perSide:ex.perSide,target:{sets:ex.sets,minReps:ex.minReps,maxReps:ex.maxReps},sets:draft.values[ex.id]?.sets||[],note:draft.values[ex.id]?.note||''}));
-  const workout={id:`${localDate()}-${currentDay}-${end}`,date:localDate(),day:currentDay,curriculumVersion:curriculum.curriculumVersion,startedAt:draft.startedAt||workoutStartedAt||end,endedAt:end,durationMinutes:Math.max(1,Math.round((end-(draft.startedAt||workoutStartedAt||end))/60000)),health:draft.health||{},diet:draft.diet||{},exercises};
+  const exercises=activeExercises().map(ex=>({id:ex.id,name:ex.name,priority:ex.priority,perSide:ex.perSide,target:{sets:ex.sets,minReps:ex.minReps,maxReps:ex.maxReps},sets:(draft.values[ex.id]?.sets||[]).slice(0,ex.sets),note:draft.values[ex.id]?.note||''}));
+  const workout={id:`${localDate()}-${currentDay}-${end}`,date:localDate(),day:currentDay,sessionFocus:draft.sessionFocus||'',curriculumVersion:curriculum.curriculumVersion,startedAt:draft.startedAt||workoutStartedAt||end,endedAt:end,durationMinutes:Math.max(1,Math.round((end-(draft.startedAt||workoutStartedAt||end))/60000)),health:draft.health||{},diet:draft.diet||{},exercises};
   const history=await dbAll('workouts');workout.stats=workoutStats(workout);workout.prs=await detectPRs(workout,history);await dbPut('workouts',workout);
   renderSummary(workout);await renderHistory();
  }catch(e){console.error(e);alert('儲存失敗，請保留畫面並重試。')}finally{$('#finishBtn').disabled=false;$('#finishBtn').textContent='完成訓練'}
@@ -234,7 +266,7 @@ function buildMarkdownReport(w){
  const exercises=w.exercises.map(e=>{const done=(e.sets||[]).filter(x=>number(x.reps)>0);const lines=done.length?done.map((x,i)=>`- 第 ${i+1} 組：${number(x.weight)>0?`${x.weight} kg × `:''}${x.reps} 下${x.rpe?`，RPE ${x.rpe}`:''}`).join('\n'):'- 未完成';return `### ${e.name}${e.priority==='optional'?'（選做）':''}\n${lines}${e.note?`\n- 備註：${e.note}`:''}`}).join('\n\n');
  const prs=(w.prs||[]).length?(w.prs||[]).map(x=>`- ${x}`).join('\n'):'- 本次未判定新 PR（首次紀錄不列入 PR）';
  const warnings=[];if(s.highRpe)warnings.push(`RPE 9–10 共 ${s.highRpe} 組`);if(number(h.wrist)>=3)warnings.push(`左手腕疼痛 ${h.wrist}/10`);if(number(h.shoulder)>=3)warnings.push(`左肩疼痛 ${h.shoulder}/10`);if(number(h.knee)>=3)warnings.push(`膝蓋疼痛 ${h.knee}/10`);if(h.gerd&&h.gerd!=='無')warnings.push(`胃食道逆流：${h.gerd}`);
- return `# 今日訓練報告\n\n- 日期：${w.date}\n- 課表：Day ${w.day}\n- 課表版本：v${w.curriculumVersion}\n- 訓練時間：${w.durationMinutes} 分鐘\n- 完成率：${s.totalDone}/${s.total}（${s.totalPercent}%）\n- 估算訓練量：${s.volume} kg·reps（單側動作按兩側計）\n\n## 身體狀況\n\n- 睡眠：${h.sleep||'未填'} 小時\n- 左手腕痛：${number(h.wrist)}/10\n- 左肩痛：${number(h.shoulder)}/10\n- 膝蓋痛：${number(h.knee)}/10\n- 胃食道逆流：${h.gerd||'無'}\n\n## 訓練內容\n\n${exercises}\n\n## 今日 PR\n\n${prs}\n\n## 風險提示\n\n${warnings.length?warnings.map(x=>`- ${x}`).join('\n'):'- 無明顯警示'}\n\n## 今日飲食紀錄
+ return `# 今日訓練報告\n\n- 日期：${w.date}\n- 課表：Day ${w.day}${w.sessionFocus?`\n- 訓練重點：${w.sessionFocus}`:''}\n- 課表版本：v${w.curriculumVersion}\n- 訓練時間：${w.durationMinutes} 分鐘\n- 完成率：${s.totalDone}/${s.total}（${s.totalPercent}%）\n- 估算訓練量：${s.volume} kg·reps（單側動作按兩側計）\n\n## 身體狀況\n\n- 睡眠：${h.sleep||'未填'} 小時\n- 左手腕痛：${number(h.wrist)}/10\n- 左肩痛：${number(h.shoulder)}/10\n- 膝蓋痛：${number(h.knee)}/10\n- 胃食道逆流：${h.gerd||'無'}\n\n## 訓練內容\n\n${exercises}\n\n## 今日 PR\n\n${prs}\n\n## 風險提示\n\n${warnings.length?warnings.map(x=>`- ${x}`).join('\n'):'- 無明顯警示'}\n\n## 今日飲食紀錄
 
 - 蛋白質達標（140g+）：${d.proteinMet?'是':'否'}
 - 蛋白質估計：${d.proteinGrams||'未填'}${d.proteinGrams?' g':''}
@@ -256,8 +288,8 @@ function buildMarkdownReport(w){
 function renderSummary(w){
  currentSummaryWorkout=w;
  const s=w.stats||workoutStats(w);currentReport=buildMarkdownReport(w);$('#report').textContent=currentReport;renderSummaryPhotos(w);
- $('#summaryHeadline').textContent=`Day ${w.day}｜${w.durationMinutes} 分鐘｜完成 ${s.totalDone}/${s.total} 組`;
- $('#summaryStats').innerHTML=[['完成率',`${s.totalPercent}%`,`${s.totalDone}/${s.total} 組`],['訓練日',`Day ${w.day}`,'六日分化'],['訓練時間',`${w.durationMinutes} 分`,'上限 60 分'],['估算總量',`${s.volume}`,'kg·reps']].map(x=>`<div class="stat-card"><span>${x[0]}</span><b>${x[1]}</b><small>${x[2]}</small></div>`).join('');
+ $('#summaryHeadline').textContent=`Day ${w.day}${w.sessionFocus?`｜${w.sessionFocus}`:''}｜${w.durationMinutes} 分鐘｜完成 ${s.totalDone}/${s.total} 組`;
+ $('#summaryStats').innerHTML=[['完成率',`${s.totalPercent}%`,`${s.totalDone}/${s.total} 組`],['訓練日',`Day ${w.day}`,w.sessionFocus||'六日分化'],['訓練時間',`${w.durationMinutes} 分`,'上限 60 分'],['估算總量',`${s.volume}`,'kg·reps']].map(x=>`<div class="stat-card"><span>${x[0]}</span><b>${x[1]}</b><small>${escapeHtml(x[2])}</small></div>`).join('');
  const pr=$('#prCard');if((w.prs||[]).length){pr.classList.remove('hidden');pr.innerHTML=`<b>今日 PR</b>${w.prs.map(x=>`<div class="pr-line">🏆 ${escapeHtml(x)}</div>`).join('')}`}else pr.classList.add('hidden');
  $('#workoutPanel').classList.add('hidden');$('#summaryPanel').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -271,7 +303,7 @@ function backToWorkout(){$('#summaryPanel').classList.add('hidden');$('#workoutP
 
 async function renderHistory(){
  const list=(await dbAll('workouts')).sort((a,b)=>(b.endedAt||0)-(a.endedAt||0));
- $('#historyList').innerHTML=list.length?list.map(w=>{const s=w.stats||workoutStats(w);return `<button class="history-entry" data-history-id="${escapeHtml(w.id)}"><span><b>${escapeHtml(w.date)}｜Day ${escapeHtml(w.day)}</b><small>完成 ${s.totalPercent}%｜總組數 ${s.totalDone}/${s.total}｜蛋白質 ${w.diet?.proteinMet?'達標':'未達標'}｜照片 ${totalPhotoCount(w.diet||{})} 張｜手腕 ${number(w.health?.wrist)}/10｜左肩 ${number(w.health?.shoulder)}/10｜膝蓋 ${number(w.health?.knee)}/10</small></span><span class="badge req">${w.durationMinutes} 分</span></button>`}).join(''):'<div class="empty">尚無 IndexedDB 訓練紀錄</div>';
+ $('#historyList').innerHTML=list.length?list.map(w=>{const s=w.stats||workoutStats(w);return `<button class="history-entry" data-history-id="${escapeHtml(w.id)}"><span><b>${escapeHtml(w.date)}｜Day ${escapeHtml(w.day)}${w.sessionFocus?`｜${escapeHtml(w.sessionFocus)}`:''}</b><small>完成 ${s.totalPercent}%｜總組數 ${s.totalDone}/${s.total}｜蛋白質 ${w.diet?.proteinMet?'達標':'未達標'}｜照片 ${totalPhotoCount(w.diet||{})} 張｜手腕 ${number(w.health?.wrist)}/10｜左肩 ${number(w.health?.shoulder)}/10｜膝蓋 ${number(w.health?.knee)}/10</small></span><span class="badge req">${w.durationMinutes} 分</span></button>`}).join(''):'<div class="empty">尚無 IndexedDB 訓練紀錄</div>';
  $$('.history-entry').forEach(b=>b.addEventListener('click',async()=>{const w=await dbGet('workouts',b.dataset.historyId);if(w){await setView('todayView');renderSummary(w)}}));
 }
 
