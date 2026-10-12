@@ -35,6 +35,17 @@ function sessionNote(day=currentDay,date=new Date()){
 }
 function exerciseLoadLabel(ex){return ex.loadDescription||(ex.weight==null?'自行選擇起始重量':ex.weight?`${ex.weight} kg`:'徒手')}
 function exerciseGuide(ex){return `<div class="cue"><b>一句要領：</b>${escapeHtml(ex.cue)}</div>${ex.effort?`<div class="small muted">${escapeHtml(ex.effort)}</div>`:''}${ex.loadDescription?`<div class="small muted">${escapeHtml(ex.loadDescription)}</div>`:''}<details class="form-guide"><summary>查看完整動作要領</summary><div class="guide-flow"><div class="guide-step"><b>1｜起始</b>${escapeHtml(ex.setup)}</div><div class="guide-step"><b>2｜動作</b>${escapeHtml(ex.execution)}</div><div class="guide-step"><b>3｜回位</b>${escapeHtml(ex.return)}</div></div><div class="guide-alerts"><div class="guide-error"><b>常見錯誤</b>${escapeHtml(ex.mistake)}</div><div class="guide-stop"><b>立即停止</b>${escapeHtml(ex.stop)}</div></div></details>`}
+function weightField(ex,index,set={}){
+ const attrs=`aria-label="重量" data-ex="${escapeHtml(ex.id)}" data-set="${index}" data-f="weight"`;
+ if(ex.weightType!=='dumbbell')return `<input inputmode="decimal" placeholder="kg" value="${escapeHtml(set.weight??ex.weight??'')}" ${attrs}>`;
+ const weights=curriculum.global.dumbbellWeights||[],hasSaved=set.weight!=null;
+ const raw=hasSaved?String(set.weight):ex.weight==null?'':String(ex.weight);
+ const match=raw.trim()!==''?weights.find(w=>Number(raw)===w):undefined;
+ const value=match!==undefined?String(match):hasSaved?raw:'';
+ const choices=[['','選重量'],...weights.map(w=>[String(w),`${w} kg`])];
+ if(value!==''&&!choices.some(([v])=>v===value))choices.splice(1,0,[value,`${value} kg（原紀錄）`]);
+ return `<select ${attrs}>${choices.map(([v,label])=>`<option value="${escapeHtml(v)}"${v===value?' selected':''}>${escapeHtml(label)}</option>`).join('')}</select>`;
+}
 
 function blankMealPhotos(){return{breakfast:[],lunch:[],dinner:[],snack:[]}}
 function normalizeMealPhotos(value){
@@ -194,7 +205,7 @@ async function renderExercises(){
  const box=$('#exerciseList'),note=sessionNote();box.innerHTML=note?`<div class="day-note">${escapeHtml(note)}</div>`:'';
  activeExercises().forEach((ex,idx)=>{
   const val=draft.values?.[ex.id]||{};const c=document.createElement('article');c.className=`card exercise ${ex.priority}`;
-  const setRows=Array.from({length:ex.sets},(_,i)=>{const s=(val.sets||[])[i]||{};return `<div class="set-grid"><div class="set-no">${i+1}</div><input inputmode="decimal" aria-label="重量" placeholder="kg" value="${escapeHtml(s.weight??ex.weight??'')}" data-ex="${ex.id}" data-set="${i}" data-f="weight"><input inputmode="numeric" aria-label="次數" placeholder="次數" value="${escapeHtml(s.reps??'')}" data-ex="${ex.id}" data-set="${i}" data-f="reps"><select aria-label="RPE" data-ex="${ex.id}" data-set="${i}" data-f="rpe"><option value="">RPE</option>${[5,6,7,8,9,10].map(n=>`<option ${String(s.rpe)===String(n)?'selected':''}>${n}</option>`).join('')}</select></div>`}).join('');
+  const setRows=Array.from({length:ex.sets},(_,i)=>{const s=(val.sets||[])[i]||{};return `<div class="set-grid"><div class="set-no">${i+1}</div>${weightField(ex,i,s)}<input inputmode="numeric" aria-label="次數" placeholder="次數" value="${escapeHtml(s.reps??'')}" data-ex="${ex.id}" data-set="${i}" data-f="reps"><select aria-label="RPE" data-ex="${ex.id}" data-set="${i}" data-f="rpe"><option value="">RPE</option>${[5,6,7,8,9,10].map(n=>`<option ${String(s.rpe)===String(n)?'selected':''}>${n}</option>`).join('')}</select></div>`}).join('');
   c.innerHTML=`<button class="exercise-toggle" type="button" aria-expanded="true"><span><span class="ex-name">${idx+1}. ${escapeHtml(ex.name)}</span><span class="small muted ex-meta">${ex.sets} 組 × ${ex.perSide?'每側 ':''}${ex.minReps}–${ex.maxReps} 下｜休息 ${ex.restSeconds} 秒</span></span><span class="row"><span class="badge req">固定</span><span class="chevron">⌃</span></span></button><div class="exercise-body">${exerciseGuide(ex)}${setRows}<div class="exercise-actions"><button type="button" class="rest-btn" data-rest-seconds="${ex.restSeconds}">休息 ${ex.restSeconds} 秒</button><span class="small muted">節奏：${escapeHtml(ex.tempo)}</span></div><label>動作備註</label><textarea rows="2" data-note="${ex.id}" placeholder="疼痛、動作感受、太輕或太重">${escapeHtml(val.note||'')}</textarea></div>`;
   box.appendChild(c);
  });
