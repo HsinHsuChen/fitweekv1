@@ -4,6 +4,7 @@ let curriculum=null,currentDay='A',metroTimer=null,metroWatchdog=null,metroRecov
 const MEAL_LABELS={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'加餐／宵夜'};
 const MAX_PHOTOS_PER_MEAL=2;
 let mealPhotos={breakfast:[],lunch:[],dinner:[],snack:[]};
+let streakEvents=[],streakExpiryTimer=null,widgetSourceText='',streakReady=false;
 
 const DB_NAME='TrainingSystemV2',DB_VERSION=1;
 function openDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,DB_VERSION);req.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains('workouts')){const s=db.createObjectStore('workouts',{keyPath:'id'});s.createIndex('date','date');s.createIndex('day','day')}if(!db.objectStoreNames.contains('drafts'))db.createObjectStore('drafts',{keyPath:'id'});if(!db.objectStoreNames.contains('settings'))db.createObjectStore('settings',{keyPath:'key'})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
@@ -12,12 +13,13 @@ async function dbGet(store,key){const db=await openDB();return new Promise((res,
 async function dbAll(store){const db=await openDB();return new Promise((res,rej)=>{const r=db.transaction(store).objectStore(store).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 async function dbClear(store){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(store,'readwrite');tx.objectStore(store).clear();tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}
 
-function localDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
-function draftId(day=currentDay){return `draft-${localDate()}-${day}`}
+function localDate(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function sessionCalendarDate(){return workoutStartedAt?new Date(workoutStartedAt):new Date()}
+function draftId(day=currentDay){return `draft-${localDate(day===currentDay?sessionCalendarDate():new Date())}-${day}`}
 function number(v){const n=Number(v);return Number.isFinite(n)?n:0}
 function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function scheduledDay(){const day=new Date().getDay();if(day===2||day===5)return'B';if(day===3||day===6)return'C';return'A'}
-function activeExercises(day=currentDay,date=new Date()){
+function activeExercises(day=currentDay,date=sessionCalendarDate()){
  const d=curriculum?.days?.[day],weekday=date.getDay();
  const list=(d?.exercises||[]).filter(ex=>!ex.saturdayOnly||weekday===6);
  const order=d?.exerciseOrderByWeekday?.[weekday];
@@ -25,8 +27,8 @@ function activeExercises(day=currentDay,date=new Date()){
  const ranks=new Map(order.map((id,index)=>[id,index]));
  return list.sort((a,b)=>(ranks.get(a.id)??order.length)-(ranks.get(b.id)??order.length));
 }
-function sessionFocus(day=currentDay,date=new Date()){const d=curriculum?.days?.[day];return d?.sessionFocusByWeekday?.[date.getDay()]||d?.defaultSessionFocus||''}
-function sessionNote(day=currentDay,date=new Date()){
+function sessionFocus(day=currentDay,date=sessionCalendarDate()){const d=curriculum?.days?.[day];return d?.sessionFocusByWeekday?.[date.getDay()]||d?.defaultSessionFocus||''}
+function sessionNote(day=currentDay,date=sessionCalendarDate()){
  const d=curriculum?.days?.[day];
  if(date.getDay()===0)return `今天週日，原定休息。下方顯示你選擇的 ${day} 日課表。`;
  if(day==='A')return `本次 A 日：${sessionFocus(day,date)}。${d?.scheduleNote||''}`;
@@ -164,6 +166,46 @@ async function loadCurriculum(){
  renderCurriculum();
  const savedDay=localStorage.getItem('currentDayDate')===localDate()?localStorage.getItem('currentDay'):null;
  await chooseDay(savedDay||scheduledDay());
+ await refreshStreak();
+}
+
+function formatStreakTime(time){return new Date(time).toLocaleString('zh-TW',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false})}
+function paintStreak(){
+ const state=FitWeekStreak.calculate(streakEvents,Date.now()),card=$('#streakCard');
+ if(!card)return state;
+ $('#streakCount').textContent=String(state.count);
+ $('#streakMessage').textContent=state.count?'保持你的節奏':state.expired?'已中斷，下一筆從1開始':'從下一次完成訓練開始';
+ $('#streakDeadline').textContent=state.count?`接續期限 ${formatStreakTime(state.expiresAt)}`:state.lastStartedAt?`上次起始 ${formatStreakTime(state.lastStartedAt)}`:'至少完成1組，再按「完成訓練」';
+ clearTimeout(streakExpiryTimer);streakExpiryTimer=null;
+ if(state.count)streakExpiryTimer=setTimeout(paintStreak,Math.max(1,state.expiresAt-Date.now()+1));
+ return state;
+}
+function renderStreakFromHistory(history){streakEvents=FitWeekStreak.eventsFromWorkouts(history);streakReady=true;$$('[data-sync-streak]').forEach(button=>button.disabled=false);return paintStreak()}
+async function refreshStreak(){return renderStreakFromHistory(await dbAll('workouts'))}
+function widgetPayload(){
+ const now=Date.now(),state=FitWeekStreak.calculate(streakEvents,now),url=new URL(window.location.href);url.search='';url.hash='';
+ return FitWeekStreak.snapshot(state,url.href,now);
+}
+function syncStreakToWidget(){
+ const status=$('#streakSyncStatus');
+ if(!streakReady){if(status)status.textContent='紀錄正在讀取，完成後再同步。';return}
+ try{
+  const payload=JSON.stringify(widgetPayload());
+  if(status)status.textContent='正在開啟 Scriptable；請確認預覽的天數與期限。';
+  window.location.href=`scriptable:///run/FitWeek-Streak?payload=${encodeURIComponent(payload)}`;
+ }catch(error){console.error(error);if(status)status.textContent='無法開啟同步，請從設定頁確認 Scriptable 已安裝。'}
+}
+async function preloadWidgetSource(){const response=await fetch('./FitWeek-Streak.js',{cache:'no-store'});if(!response.ok)throw new Error('小工具程式載入失敗');widgetSourceText=await response.text()}
+async function copyWidgetProgram(){
+ const status=$('#widgetCopyStatus');
+ try{
+  if(!widgetSourceText)await preloadWidgetSource();
+  try{await navigator.clipboard.writeText(widgetSourceText);status.textContent='已複製。到 Scriptable 貼上，名稱設為 FitWeek-Streak。'}catch(error){
+   const box=$('#widgetSource');box.value=widgetSourceText;box.classList.remove('hidden');box.focus();box.select();
+   const copied=document.execCommand&&document.execCommand('copy');
+   status.textContent=copied?'已複製。到 Scriptable 貼上，名稱設為 FitWeek-Streak。':'請長按下方程式碼，選取全部並複製。';
+  }
+ }catch(error){console.error(error);status.textContent='程式尚未載入，請重新整理後重試，或使用「下載程式」。'}
 }
 
 async function setView(id){
@@ -186,11 +228,11 @@ function renderCurriculum(){
 
 async function chooseDay(day){
  if(curriculum&&!curriculum.days[day])day='A';
- currentDay=day;localStorage.setItem('currentDay',day);localStorage.setItem('currentDayDate',localDate());
+ currentDay=day;workoutStartedAt=null;localStorage.setItem('currentDay',day);localStorage.setItem('currentDayDate',localDate());
  $$('.day-pill').forEach(b=>b.classList.toggle('active',b.dataset.day===day));
- const focus=sessionFocus(day);$('#dayTitle').textContent=`Day ${day}｜${curriculum.days[day].name}${focus?`｜${focus}`:''}`;
  $('#summaryPanel').classList.add('hidden');$('#workoutPanel').classList.remove('hidden');
  await renderExercises();
+ const focus=sessionFocus(day);$('#dayTitle').textContent=`Day ${day}｜${curriculum.days[day].name}${focus?`｜${focus}`:''}`;
 }
 
 async function renderExercises(){
@@ -218,7 +260,7 @@ async function renderExercises(){
 let saveTimer=null;
 function queueSaveDraft(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveDraft().catch(console.error),180)}
 async function saveDraft(){
- const id=draftId(),date=localDate(),day=currentDay,focus=sessionFocus(),startedAt=workoutStartedAt||Date.now();
+ const startedAt=workoutStartedAt||Date.now(),id=draftId(),date=localDate(new Date(startedAt)),day=currentDay,focus=sessionFocus();
  const values={};
  activeExercises().forEach(ex=>{values[ex.id]={sets:[],note:$(`[data-note="${ex.id}"]`)?.value||''};for(let i=0;i<ex.sets;i++)values[ex.id].sets.push({weight:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="weight"]`)?.value||'',reps:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="reps"]`)?.value||'',rpe:$(`[data-ex="${ex.id}"][data-set="${i}"][data-f="rpe"]`)?.value||''})});
  const health={sleep:$('#sleep').value,wrist:number($('#wrist').value),shoulder:number($('#shoulder').value),knee:number($('#knee').value),gerd:$('#gerd').value};
@@ -266,7 +308,8 @@ async function finishWorkout(){
  try{
   await saveDraft();const draft=await dbGet('drafts',draftId());const end=Date.now();
   const exercises=activeExercises().map(ex=>({id:ex.id,name:ex.name,priority:ex.priority,perSide:ex.perSide,target:{sets:ex.sets,minReps:ex.minReps,maxReps:ex.maxReps},sets:(draft.values[ex.id]?.sets||[]).slice(0,ex.sets),note:draft.values[ex.id]?.note||''}));
-  const workout={id:`${localDate()}-${currentDay}-${end}`,date:localDate(),day:currentDay,sessionFocus:draft.sessionFocus||'',curriculumVersion:curriculum.curriculumVersion,startedAt:draft.startedAt||workoutStartedAt||end,endedAt:end,durationMinutes:Math.max(1,Math.round((end-(draft.startedAt||workoutStartedAt||end))/60000)),health:draft.health||{},diet:draft.diet||{},exercises};
+  const start=draft.startedAt||workoutStartedAt||end,trainingDate=FitWeekStreak.taipeiDay(start);
+  const workout={id:`${draft.date}-${currentDay}-${end}`,date:draft.date,trainingDate,day:currentDay,sessionFocus:draft.sessionFocus||'',curriculumVersion:curriculum.curriculumVersion,startedAt:start,endedAt:end,durationMinutes:Math.max(1,Math.round((end-start)/60000)),health:draft.health||{},diet:draft.diet||{},exercises};
   const history=await dbAll('workouts');workout.stats=workoutStats(workout);workout.prs=await detectPRs(workout,history);await dbPut('workouts',workout);
   renderSummary(workout);await renderHistory();
  }catch(e){console.error(e);alert('儲存失敗，請保留畫面並重試。')}finally{$('#finishBtn').disabled=false;$('#finishBtn').textContent='完成訓練'}
@@ -311,9 +354,20 @@ async function copyReport(){
  const buttons=[$('#copyBtn'),$('#copyBtnBottom')];buttons.forEach(b=>{const old=b.textContent;b.textContent='已複製';setTimeout(()=>b.textContent=old,1300)});
 }
 function backToWorkout(){$('#summaryPanel').classList.add('hidden');$('#workoutPanel').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})}
+async function startNewWorkout(){
+ const button=$('#newWorkoutBtn');button.disabled=true;
+ try{
+  if(localDate(sessionCalendarDate())!==localDate()){await chooseDay(scheduledDay());return}
+  workoutStartedAt=Date.now();
+  $$('[data-ex]').forEach(input=>{if(input.dataset.f!=='weight')input.value=''});
+  $$('[data-note]').forEach(input=>input.value='');
+  await saveDraft();await chooseDay(currentDay);window.scrollTo({top:0,behavior:'smooth'});
+ }catch(error){console.error(error);alert('無法開始新紀錄，請重新整理後重試。')}finally{button.disabled=false}
+}
 
 async function renderHistory(){
  const list=(await dbAll('workouts')).sort((a,b)=>(b.endedAt||0)-(a.endedAt||0));
+ renderStreakFromHistory(list);
  $('#historyList').innerHTML=list.length?list.map(w=>{const s=w.stats||workoutStats(w);return `<button class="history-entry" data-history-id="${escapeHtml(w.id)}"><span><b>${escapeHtml(w.date)}｜Day ${escapeHtml(w.day)}${w.sessionFocus?`｜${escapeHtml(w.sessionFocus)}`:''}</b><small>完成 ${s.totalPercent}%｜總組數 ${s.totalDone}/${s.total}｜蛋白質 ${w.diet?.proteinMet?'達標':'未達標'}｜照片 ${totalPhotoCount(w.diet||{})} 張｜手腕 ${number(w.health?.wrist)}/10｜左肩 ${number(w.health?.shoulder)}/10｜膝蓋 ${number(w.health?.knee)}/10</small></span><span class="badge req">${w.durationMinutes} 分</span></button>`}).join(''):'<div class="empty">尚無 IndexedDB 訓練紀錄</div>';
  $$('.history-entry').forEach(b=>b.addEventListener('click',async()=>{const w=await dbGet('workouts',b.dataset.historyId);if(w){await setView('todayView');renderSummary(w)}}));
 }
@@ -372,10 +426,12 @@ function updateVisualViewportOffset(){const vv=window.visualViewport;if(!vv){doc
 if(window.visualViewport){window.visualViewport.addEventListener('resize',updateVisualViewportOffset);window.visualViewport.addEventListener('scroll',updateVisualViewportOffset)}
 window.addEventListener('resize',updateVisualViewportOffset);window.addEventListener('orientationchange',()=>setTimeout(updateVisualViewportOffset,150));
 document.addEventListener('visibilitychange',resumeMetroIfNeeded);window.addEventListener('pageshow',resumeMetroIfNeeded);window.addEventListener('focus',resumeMetroIfNeeded);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshStreak().catch(console.error)});window.addEventListener('pageshow',()=>refreshStreak().catch(console.error));
 
 document.addEventListener('click',e=>{
  if(e.target.matches('.tab'))setView(e.target.dataset.view);
  if(e.target.matches('.day-pill'))chooseDay(e.target.dataset.day);
+ if(e.target.closest('[data-sync-streak]')){syncStreakToWidget();return}
  const rest=e.target.closest('[data-rest-seconds]');if(rest){startRestTimer(number(rest.dataset.restSeconds),rest);return}
  const deleteButton=e.target.closest('[data-delete-photo]');
  if(deleteButton){
@@ -385,4 +441,5 @@ document.addEventListener('click',e=>{
  }
 });
 $('#metroBtn').addEventListener('click',toggleMetro);$('#finishBtn').addEventListener('click',finishWorkout);$('#copyBtn').addEventListener('click',copyReport);$('#copyBtnBottom').addEventListener('click',copyReport);$('#shareReportBtn').addEventListener('click',()=>shareReportWithPhotos());$('#downloadReportBtn').addEventListener('click',()=>downloadReportPackage());$('#backWorkoutBtn').addEventListener('click',backToWorkout);$('#exportBtn').addEventListener('click',exportData);$('#importFile').addEventListener('change',e=>e.target.files[0]&&importData(e.target.files[0]));$('#resetBtn').addEventListener('click',resetAll);
-window.addEventListener('load',async()=>{updateVisualViewportOffset();await openDB();await loadCurriculum();await setView(localStorage.getItem('activeView')||'todayView');if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').then(reg=>reg.update()).catch(()=>{})});
+$('#copyWidgetBtn').addEventListener('click',copyWidgetProgram);$('#newWorkoutBtn').addEventListener('click',startNewWorkout);
+window.addEventListener('load',async()=>{updateVisualViewportOffset();await openDB();await loadCurriculum();await setView(localStorage.getItem('activeView')||'todayView');preloadWidgetSource().catch(console.error);if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').then(reg=>reg.update()).catch(()=>{})});

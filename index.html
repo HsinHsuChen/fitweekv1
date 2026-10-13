@@ -28,6 +28,15 @@
     <button id="metroBtn" class="secondary">開始</button>
   </div>
 
+  <section id="streakCard" class="streak-card" aria-label="連續運動紀錄">
+    <div class="streak-main">
+      <div class="streak-total"><svg class="streak-flame" viewBox="0 0 32 40" aria-hidden="true"><path fill="currentColor" d="M18 0c2 9 11 13 11 23a13 13 0 0 1-26 0c0-5 3-9 6-13-1 6 2 7 4 8C17 13 17 7 18 0Z"/><path fill="#5b237b" d="M17 19c0 5 6 7 6 12a7 7 0 0 1-14 0c0-3 3-7 5-9 0 3 1 4 2 4 1-2 1-4 1-7Z"/></svg><strong id="streakCount" aria-live="polite">0</strong><span>天</span></div>
+      <div class="streak-copy"><b>連續運動</b><div id="streakMessage">正在讀取紀錄…</div><div id="streakDeadline" class="streak-deadline"></div></div>
+    </div>
+    <div class="streak-actions"><span>24小時內接續・同一訓練日只算1次</span><button type="button" data-sync-streak disabled>同步到桌面</button></div>
+    <div id="streakSyncStatus" class="streak-sync-status" role="status"></div>
+  </section>
+
   <section id="todayView" class="view active">
     <div id="workoutPanel">
       <div class="card">
@@ -146,6 +155,7 @@
         <button id="downloadReportBtn">下載 ChatGPT 報告包</button>
         <button id="copyBtnBottom" class="secondary">只複製文字報告</button>
         <button id="backWorkoutBtn" class="secondary">返回今日訓練</button>
+        <button id="newWorkoutBtn" class="secondary">開始新一筆訓練</button>
       </div>
       <div class="small muted share-note">手機分享時請在分享面板選擇 ChatGPT；若裝置不支援多檔分享，系統會改下載 ZIP 報告包。</div>
     </div>
@@ -163,6 +173,22 @@
   </section>
 
   <section id="settingsView" class="view">
+    <div class="card widget-setup">
+      <b>iPhone 桌面小工具</b>
+      <p class="small muted">紫色火焰與連續天數。完成訓練後按「同步到桌面」，會開啟 Scriptable 更新資料。</p>
+      <ol class="small">
+        <li><a href="https://apps.apple.com/tw/app/scriptable/id1405459188" target="_blank" rel="noopener">安裝 Scriptable</a>。</li>
+        <li>按下方「複製小工具程式」，到 Scriptable 按＋，貼上並將名稱設為 <b>FitWeek-Streak</b>。</li>
+        <li>回到原本的訓練網頁，按「同步到桌面」。Scriptable 會顯示預覽。</li>
+        <li>長按 iPhone 主畫面 → 編輯 → 加入小工具 → Scriptable，選小尺寸。</li>
+        <li>長按加入的小工具 → 編輯小工具 → Script，選 <b>FitWeek-Streak</b>。</li>
+      </ol>
+      <div class="row"><button id="copyWidgetBtn" type="button">複製小工具程式</button><a class="widget-download" href="./FitWeek-Streak.js" download="FitWeek-Streak.js">下載程式</a><button type="button" class="secondary" data-sync-streak disabled>同步到桌面</button></div>
+      <div id="widgetCopyStatus" class="small muted" role="status"></div>
+      <textarea id="widgetSource" rows="8" class="hidden widget-source" aria-label="小工具程式碼" readonly></textarea>
+      <p class="small muted">只計入按「完成訓練」儲存且至少完成1組的紀錄。從最新有效紀錄的起始時間起算24小時；同一訓練日的新紀錄只更新期限。跨午夜依起始日期歸屬。</p>
+      <p class="small muted">超過24小時顯示0，下一筆從1重新開始。週日原定休息，若沒有新紀錄也會中斷。iOS 決定桌面刷新時間，可能延後；小工具會標示期限與上次同步時間。</p>
+    </div>
     <div class="card"><b>資料備份</b><p class="small muted">IndexedDB 不會自動同步到 Git。建議定期匯出 JSON。</p><div class="row"><button id="exportBtn">匯出 JSON</button><label class="secondary file-button">匯入 JSON<input id="importFile" type="file" accept=".json" class="hidden"></label></div></div>
     <div class="card"><b>PWA 安裝</b><p class="small muted">iPhone：Safari 分享 → 加入主畫面。Android：Chrome 選單 → 安裝應用程式／加到主畫面。</p></div>
     <div class="card"><b>危險操作</b><p class="small muted">清除只影響目前手機與瀏覽器。</p><button id="resetBtn" class="danger">清除全部本機資料</button></div>
@@ -176,6 +202,7 @@
   <button class="tab" data-view="settingsView">設定</button>
 </nav>
 <script src="./jszip.min.js"></script>
+<script src="./streak.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>
