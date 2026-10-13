@@ -174,6 +174,7 @@ function paintStreak(){
  const state=FitWeekStreak.calculate(streakEvents,Date.now()),card=$('#streakCard');
  if(!card)return state;
  $('#streakCount').textContent=String(state.count);
+ card.classList.toggle('idle',!state.count);
  $('#streakMessage').textContent=state.count?'保持你的節奏':state.expired?'已中斷，下一筆從1開始':'從下一次完成訓練開始';
  $('#streakDeadline').textContent=state.count?`接續期限 ${formatStreakTime(state.expiresAt)}`:state.lastStartedAt?`上次起始 ${formatStreakTime(state.lastStartedAt)}`:'至少完成1組，再按「完成訓練」';
  clearTimeout(streakExpiryTimer);streakExpiryTimer=null;

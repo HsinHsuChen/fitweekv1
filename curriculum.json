@@ -1,5 +1,5 @@
 {
-  "appVersion": "2.2.0",
+  "appVersion": "2.2.1",
   "curriculumVersion": "2.1",
   "updatedAt": "2026-10-13",
   "global": {
@@ -341,6 +341,14 @@
     }
   },
   "changelog": [
+    {
+      "version": "2.2.1",
+      "date": "2026-10-13",
+      "changes": [
+        "連續運動火焰改為橘紅金三層漸層，卡片改為暖深色；未連續時火焰轉灰",
+        "iPhone 小工具換成新火焰，並加入5種隨機配色（橘、紫、藍、綠、粉），需重新複製小工具程式到 Scriptable"
+      ]
+    },
     {
       "version": "2.2.0",
       "date": "2026-10-13",

@@ -1,10 +1,10 @@
 # FitWeek iPhone 桌面小工具
 
-App v2.2.0，A／B／C 課表沿用 v2.1。
+App v2.2.1，A／B／C 課表沿用 v2.1。
 
 ## 更新網站
 
-將更新包的所有檔案放到原 GitHub 儲存庫根目錄並提交，保留原網站網址。GitHub Pages 發布後重新整理，確認顯示 App v2.2.0。
+將更新包的所有檔案放到原 GitHub 儲存庫根目錄並提交，保留原網站網址。GitHub Pages 發布後重新整理，確認顯示 App v2.2.1。
 
 本次新增 `streak.js`、`FitWeek-Streak.js` 與本說明檔。其他網頁檔案也包含在更新包中。
 
