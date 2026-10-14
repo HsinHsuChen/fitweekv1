@@ -1,4 +1,15 @@
-const CACHE='training-v2.2.1-flame-20261013';const ASSETS=['./','./index.html','./styles.css','./app.js','./streak.js','./FitWeek-Streak.js','./curriculum.json','./manifest.json','./jszip.min.js'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open(CACHE).then(x=>x.put(e.request,c));return r}).catch(()=>caches.match(e.request))));
+const CACHE='training-v2.3.2-weekly-cindy-rest';
+const VERSION='2.3.2';
+const ASSETS=['./','./index.html','./FitWeek-Streak.js','./manifest.json',...['styles.css','app.js','features.js','weekly-weights.js','cindy.js','streak.js','curriculum.json','jszip.min.js'].map(file=>`./${file}?v=${VERSION}`)];
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('training-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',event=>{
+ if(event.request.method!=='GET')return;
+ event.respondWith((async()=>{
+  try{
+   const response=await fetch(event.request);
+   if(response.ok){const copy=response.clone();event.waitUntil(caches.open(CACHE).then(cache=>cache.put(event.request,copy)).catch(()=>{}));return response}
+   return await caches.match(event.request)||response;
+  }catch(error){const cached=await caches.match(event.request);if(cached)return cached;throw error}
+ })());
+});

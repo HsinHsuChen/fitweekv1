@@ -1,7 +1,7 @@
 {
-  "appVersion": "2.2.1",
-  "curriculumVersion": "2.1",
-  "updatedAt": "2026-10-13",
+  "appVersion": "2.3.2",
+  "curriculumVersion": "2.2",
+  "updatedAt": "2026-10-14",
   "global": {
     "bpm": 60,
     "targetMinutes": 40,
@@ -338,9 +338,99 @@
           "weightType": "dumbbell"
         }
       ]
+    },
+    "D": {
+      "name": "Cindy 體能日（選配）",
+      "focus": "20分鐘｜每輪5引體＋10伏地＋15徒手深蹲",
+      "mode": "cindy",
+      "sessionNote": "Cindy是體能訓練。先以彈力帶輔助引體、上斜伏地配速，保留餘力；取代一次重訓或恢復良好時選做。週日可完全休息，連續紀錄會保留。",
+      "exercises": [
+        {
+          "id": "cindy-pull-up",
+          "name": "Cindy 引體向上",
+          "priority": "required",
+          "weight": 0,
+          "sets": 1,
+          "minReps": 0,
+          "maxReps": 0,
+          "perSide": false,
+          "restSeconds": 0,
+          "tempo": "配速、保持標準動作",
+          "cue": "用足夠輔助完成5下，不踢腿、不在失敗後硬撐。",
+          "setup": "確認架子與彈力帶牢靠。",
+          "execution": "胸口往槓靠近，手肘往身側拉。",
+          "return": "控制下降，肩膀自然活動。",
+          "mistake": "踢腿、伸脖子或力竭後硬拉。",
+          "stop": "肩膀卡痛、手麻或架子不穩。"
+        },
+        {
+          "id": "cindy-push-up",
+          "name": "Cindy 伏地挺身",
+          "priority": "required",
+          "weight": 0,
+          "sets": 1,
+          "minReps": 0,
+          "maxReps": 0,
+          "perSide": false,
+          "restSeconds": 0,
+          "tempo": "配速、保持標準動作",
+          "cue": "腹部收緊、身體保持一直線；需要時雙手放在穩固椅面。",
+          "setup": "確認椅子不滑動，手腕放在能舒服承重的位置。",
+          "execution": "手肘約往後外側彎，胸口接近支撐面。",
+          "return": "整個軀幹一起推回，不塌腰。",
+          "mistake": "塌腰、聳肩或只用半程。",
+          "stop": "手腕或肩膀疼痛。"
+        },
+        {
+          "id": "cindy-air-squat",
+          "name": "Cindy 徒手深蹲",
+          "priority": "required",
+          "weight": 0,
+          "sets": 1,
+          "minReps": 0,
+          "maxReps": 0,
+          "perSide": false,
+          "restSeconds": 0,
+          "tempo": "配速、保持標準動作",
+          "cue": "膝蓋跟脚尖同向，在可控制的深度下蹲。",
+          "setup": "腳掌踩穩，必要時用穩固椅面作深度參考。",
+          "execution": "臀部往後下方坐，膝蓋自然前移。",
+          "return": "踩穩站起，不彈震。",
+          "mistake": "膝蓋內夾、腰拱起或快速摔坐。",
+          "stop": "膝蓋真正卡住、疼痛或腰痛。"
+        }
+      ]
     }
   },
   "changelog": [
+    {
+      "version": "2.3.2",
+      "date": "2026-10-14",
+      "changes": [
+        "連續訓練按每筆有效紀錄累計，同一天的不同訓練各算1次，不必等待跨日",
+        "相同訓練重複儲存只算1次，24小時接續與週日休息規則保留",
+        "網站與桌面小工具改以「次」顯示；舊紀錄自動重算，小工具需更新程式並重新同步"
+      ]
+    },
+    {
+      "version": "2.3.1",
+      "date": "2026-10-14",
+      "changes": [
+        "加強動作載入保護：每週檢視異常時仍可顯示並記錄今日動作",
+        "更新檔案版本標記，減少舊快取與新版功能混用"
+      ]
+    },
+    {
+      "version": "2.3.0",
+      "date": "2026-10-14",
+      "changes": [
+        "新增上週重量檢視，依次數、RPE、動作品質及恢復提出建議，勾選後才套用",
+        "A日肩優先與胸優先分開比較；資料不足或最小加重增幅過大時維持",
+        "新增D日Cindy20分鐘計時、輪數與零星次數、動作縮階及同條件PR",
+        "週日暫停24小時計時，休息保留連續紀錄但不增加天數",
+        "沿用v2.2.1火焰與小工具配色；需更新Scriptable程式並重新同步"
+      ]
+    },
     {
       "version": "2.2.1",
       "date": "2026-10-13",

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1b1713">
 <link rel="manifest" href="./manifest.json">
-<link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./styles.css?v=2.3.2">
 <title>Training System V2</title>
 </head>
 <body>
@@ -28,12 +28,12 @@
     <button id="metroBtn" class="secondary">開始</button>
   </div>
 
-  <section id="streakCard" class="streak-card" aria-label="連續運動紀錄">
+  <section id="streakCard" class="streak-card" aria-label="連續訓練次數">
     <div class="streak-main">
-      <div class="streak-total"><svg class="streak-flame" viewBox="0 0 64 80" aria-hidden="true"><defs><linearGradient id="fwFlameOuter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a2e"/><stop offset="1" stop-color="#d9361b"/></linearGradient><linearGradient id="fwFlameMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd04a"/><stop offset="1" stop-color="#ff8a1f"/></linearGradient><linearGradient id="fwFlameCore" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8cf"/><stop offset="1" stop-color="#ffe27a"/></linearGradient></defs><path fill="url(#fwFlameOuter)" d="M32 2C34 18 56 28 56 52C56 68 45 78 32 78C19 78 8 68 8 52C8 41 14 34 19 28C20 36 24 40 28 41C24 28 27 14 32 2Z"/><path fill="url(#fwFlameMid)" d="M32 26C34 36 47 42 47 56C47 66 40 73 32 73C24 73 17 66 17 56C17 49 21 44 25 40C26 45 29 47 31 47C29 40 30 32 32 26Z"/><path fill="url(#fwFlameCore)" d="M32 50C33 55 39 58 39 64C39 69 36 71 32 71C28 71 25 69 25 64C25 60 28 56 29 53C30 55 31 56 32 56C32 54 32 52 32 50Z"/></svg><strong id="streakCount" aria-live="polite">0</strong><span>天</span></div>
-      <div class="streak-copy"><b>連續運動</b><div id="streakMessage">正在讀取紀錄…</div><div id="streakDeadline" class="streak-deadline"></div></div>
+      <div class="streak-total"><svg class="streak-flame" viewBox="0 0 64 80" aria-hidden="true"><defs><linearGradient id="fwFlameOuter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a2e"/><stop offset="1" stop-color="#d9361b"/></linearGradient><linearGradient id="fwFlameMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd04a"/><stop offset="1" stop-color="#ff8a1f"/></linearGradient><linearGradient id="fwFlameCore" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8cf"/><stop offset="1" stop-color="#ffe27a"/></linearGradient></defs><path fill="url(#fwFlameOuter)" d="M32 2C34 18 56 28 56 52C56 68 45 78 32 78C19 78 8 68 8 52C8 41 14 34 19 28C20 36 24 40 28 41C24 28 27 14 32 2Z"/><path fill="url(#fwFlameMid)" d="M32 26C34 36 47 42 47 56C47 66 40 73 32 73C24 73 17 66 17 56C17 49 21 44 25 40C26 45 29 47 31 47C29 40 30 32 32 26Z"/><path fill="url(#fwFlameCore)" d="M32 50C33 55 39 58 39 64C39 69 36 71 32 71C28 71 25 69 25 64C25 60 28 56 29 53C30 55 31 56 32 56C32 54 32 52 32 50Z"/></svg><strong id="streakCount" aria-live="polite">0</strong><span>次</span></div>
+      <div class="streak-copy"><b>連續訓練</b><div id="streakMessage">正在讀取紀錄…</div><div id="streakDeadline" class="streak-deadline"></div></div>
     </div>
-    <div class="streak-actions"><span>24小時內接續・同一訓練日只算1次</span><button type="button" data-sync-streak disabled>同步到桌面</button></div>
+    <div class="streak-actions"><span>每筆＋1・週日暫停計時</span><button type="button" data-sync-streak disabled>同步到桌面</button></div>
     <div id="streakSyncStatus" class="streak-sync-status" role="status"></div>
   </section>
 
@@ -42,7 +42,7 @@
       <div class="card">
         <div class="row">
           <div class="grow"><b id="dayTitle">今日訓練</b><div class="small muted">每天 3～5 個固定動作；點開卡片就能看完整要領</div></div>
-          <div class="day-pills"><button class="day-pill active" data-day="A">A</button><button class="day-pill" data-day="B">B</button><button class="day-pill" data-day="C">C</button></div>
+          <div class="day-pills"><button class="day-pill active" data-day="A">A</button><button class="day-pill" data-day="B">B</button><button class="day-pill" data-day="C">C</button><button class="day-pill" data-day="D">D</button></div>
         </div>
         <div class="progress" style="margin-top:12px"><div id="progressBar"></div></div>
         <div id="progressText" class="small muted" style="margin-top:5px"></div>
@@ -162,6 +162,7 @@
   </section>
 
   <section id="curriculumView" class="view">
+    <details class="card weekly-review"><summary><b>每週重量檢視與建議</b></summary><p id="weeklyPeriod" class="small muted"></p><p id="weeklyOverview" class="small"></p><p class="small muted">每週一檢視上週紀錄。A日肩優先與胸優先分開比較；加重需同重量連續兩次達標、每組RPE≤8且姿勢標準。資料不足先維持，Cindy不納入啞鈴加重。</p><div id="weeklyReviewRows"></div><button id="applyWeeklyBtn" type="button" class="good full">套用勾選的建議重量</button><div id="weeklyStatus" class="small muted" role="status"></div></details>
     <div class="card"><b>課表執行原則</b><div id="trainingPrinciple" class="small muted"></div></div>
     <div class="card"><b>何時增加重量或降低輔助</b><div id="progressionRule" class="small muted"></div></div>
     <div class="card"><b>現有器材與安全限制</b><div id="equipmentSummary" class="small muted"></div><div id="equipmentSafety" class="equipment-warning small"></div></div>
@@ -175,7 +176,7 @@
   <section id="settingsView" class="view">
     <div class="card widget-setup">
       <b>iPhone 桌面小工具</b>
-      <p class="small muted">火焰與連續天數。完成訓練後按「同步到桌面」，會開啟 Scriptable 更新資料。</p>
+      <p class="small muted">火焰與連續訓練次數。完成訓練後按「同步到桌面」，會開啟 Scriptable 更新資料。</p>
       <ol class="small">
         <li><a href="https://apps.apple.com/tw/app/scriptable/id1405459188" target="_blank" rel="noopener">安裝 Scriptable</a>。</li>
         <li>按下方「複製小工具程式」，到 Scriptable 按＋，貼上並將名稱設為 <b>FitWeek-Streak</b>。</li>
@@ -186,8 +187,8 @@
       <div class="row"><button id="copyWidgetBtn" type="button">複製小工具程式</button><a class="widget-download" href="./FitWeek-Streak.js" download="FitWeek-Streak.js">下載程式</a><button type="button" class="secondary" data-sync-streak disabled>同步到桌面</button></div>
       <div id="widgetCopyStatus" class="small muted" role="status"></div>
       <textarea id="widgetSource" rows="8" class="hidden widget-source" aria-label="小工具程式碼" readonly></textarea>
-      <p class="small muted">只計入按「完成訓練」儲存且至少完成1組的紀錄。從最新有效紀錄的起始時間起算24小時；同一訓練日的新紀錄只更新期限。跨午夜依起始日期歸屬。</p>
-      <p class="small muted">超過24小時顯示0，下一筆從1重新開始。週日原定休息，若沒有新紀錄也會中斷。iOS 決定桌面刷新時間，可能延後；小工具會標示期限與上次同步時間。</p>
+      <p class="small muted">每筆按「完成訓練」儲存且至少完成1組的有效訓練算1次，同一天也可接續；同一訓練重複儲存只算1次。從最新有效紀錄起始時間計24小時，週日暫停計時；休息保留次數、不額外加1。</p>
+      <p class="small muted">例：週六22:00開始，週日休息，接續期限為週一22:00。超過期限顯示0，下一筆重新從1開始；已在週六前中斷的紀錄不會因週日恢復。iOS 桌面刷新可能延後。</p>
     </div>
     <div class="card"><b>資料備份</b><p class="small muted">IndexedDB 不會自動同步到 Git。建議定期匯出 JSON。</p><div class="row"><button id="exportBtn">匯出 JSON</button><label class="secondary file-button">匯入 JSON<input id="importFile" type="file" accept=".json" class="hidden"></label></div></div>
     <div class="card"><b>PWA 安裝</b><p class="small muted">iPhone：Safari 分享 → 加入主畫面。Android：Chrome 選單 → 安裝應用程式／加到主畫面。</p></div>
@@ -201,8 +202,11 @@
   <button class="tab" data-view="historyView">歷史</button>
   <button class="tab" data-view="settingsView">設定</button>
 </nav>
-<script src="./jszip.min.js"></script>
-<script src="./streak.js"></script>
-<script src="./app.js"></script>
+<script src="./jszip.min.js?v=2.3.2"></script>
+<script src="./streak.js?v=2.3.2"></script>
+<script src="./weekly-weights.js?v=2.3.2"></script>
+<script src="./cindy.js?v=2.3.2"></script>
+<script src="./app.js?v=2.3.2"></script>
+<script src="./features.js?v=2.3.2"></script>
 </body>
 </html>
