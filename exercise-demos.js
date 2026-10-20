@@ -1,69 +1,47 @@
-// Two-position SVG diagrams: locally available with the installed web app.
-function movementIllustration(id){
- const line=d=>`<path class="body-line" d="${d}"/>`,back=d=>`<path class="secondary-limb" d="${d}"/>`,eq=d=>`<path class="equipment" d="${d}"/>`,head=(x,y)=>`<circle class="head" cx="${x}" cy="${y}" r="9"/>`,db=(x,y)=>`<g class="weight" transform="translate(${x} ${y})"><rect x="-11" y="-3" width="22" height="6" rx="2"/><rect x="-10" y="-8" width="5" height="16" rx="2"/><rect x="5" y="-8" width="5" height="16" rx="2"/></g>`,arrow=d=>`<path class="arrow" d="${d}"/>`;
- const standing=back('M80 80 97 120')+line('M80 42 80 80 63 120')+line('M64 46 96 46');
- const front=(arms,weights,up=false)=>head(80,27)+standing+line(arms)+weights+(up?arrow('M128 72 128 38 M123 43 128 38 133 43'):'');
- const bench=eq('M25 101 96 58 M42 91 42 123 M87 64 105 123');
- const seated=back('M65 83 83 110 108 110')+line('M95 58 65 83 53 117 79 117');
- const poses={
-  'neutral-db-shoulder-press':[
-   front('M64 46 48 57 48 35 M96 46 112 57 112 35',db(48,33)+db(112,33)),
-   front('M64 46 52 27 52 10 M96 46 108 27 108 10',db(52,10)+db(108,10),true),
-   '啞鈴在肩膀兩側，掌心相對。','往上推，肋骨收好，避免聳肩。'],
-  'incline-db-press':[
-   bench+head(106,45)+seated+line('M94 59 112 78 122 54')+db(122,52),
-   bench+head(106,45)+seated+line('M94 59 99 33 103 10')+db(103,10)+arrow('M135 57 135 23 M130 28 135 23 140 28'),
-   '低上斜躺穩，手腕在手肘上方。','推向胸口上方，肩膀保持穩定。'],
-  'lateral-raise':[
-   front('M64 46 60 69 56 91 M96 46 100 69 104 91',db(56,94)+db(104,94)),
-   front('M64 46 42 50 18 56 M96 46 118 50 142 56',db(18,56)+db(142,56))+arrow('M124 92 Q147 82 149 67 M144 71 149 67 152 73'),
-   '手肘微彎，啞鈴放身體兩側。','手肘帶動向外抬，約到肩高即可。'],
-  'db-overhead-triceps-extension':[
-   head(78,37)+line('M78 51 78 83 M78 83 62 120 M78 83 96 120 M78 51 91 20 111 47')+db(111,47),
-   head(78,37)+line('M78 51 78 83 M78 83 62 120 M78 83 96 120 M78 51 91 20 91 9')+db(91,9)+arrow('M128 52 Q136 26 115 14 M116 20 115 14 122 14'),
-   '雙手握同一支啞鈴，上臂朝上。','伸直手肘，上臂位置大致固定。'],
-  'chest-supported-row':[
-   bench+head(108,40)+line('M96 53 59 85 44 122 M59 85 80 122 M96 57 92 83 92 105')+db(92,108),
-   bench+head(108,40)+line('M96 53 59 85 44 122 M59 85 80 122 M96 57 111 65 88 79')+db(88,81)+arrow('M131 109 131 78 M126 84 131 78 136 84'),
-   '胸口貼斜椅，手臂自然下垂。','手肘拉向腰側，胸口持續貼椅。'],
-  'chest-supported-reverse-fly':[
-   eq('M65 42 96 86 M65 42 55 113 M96 86 107 119')+head(80,25)+line('M80 40 80 80 M64 46 96 46 M64 46 64 70 69 90 M96 46 96 70 91 90')+db(69,91)+db(91,91),
-   eq('M65 42 96 86 M65 42 55 113 M96 86 107 119')+head(80,25)+line('M80 40 80 80 M64 46 96 46 M64 46 40 51 18 57 M96 46 120 51 142 57')+db(18,57)+db(142,57),
-   '胸靠椅，手肘微彎。圖為正面方向。','手臂向兩側展開，避免做成划船。'],
-  'hammer-curl':[
-   front('M64 46 62 70 62 95 M96 46 98 70 98 95',db(62,96)+db(98,96)),
-   front('M64 46 62 70 65 45 M96 46 98 70 95 45',db(65,45)+db(95,45))+arrow('M124 94 Q142 69 126 47 M125 54 126 47 132 50'),
-   '掌心相對，上臂放身體兩側。','只彎手肘，不甩身體或抬上臂。'],
-  'dead-bug':[
-   head(29,108)+back('M58 112 69 68 M92 111 95 69 128 69')+line('M42 115 93 115 M50 112 51 70 M92 111 88 74 120 74'),
-   head(29,108)+back('M58 112 69 68 M92 111 95 69 128 69')+line('M42 115 93 115 M50 112 17 80 M92 111 119 108 148 115')+arrow('M134 99 147 106 M141 101 147 106 140 108'),
-   '仰躺、手朝上，髖膝約 90°。','伸對側手腳，下背持續貼地。'],
-  'goblet-squat':[
-   eq('M23 96 68 96 M30 96 30 124 M62 96 62 124')+head(87,24)+line('M86 38 76 80 87 107 112 121 M86 48 105 57 106 48')+db(106,49),
-   eq('M23 96 68 96 M30 96 30 124 M62 96 62 124')+head(101,58)+line('M97 72 64 94 104 98 113 121 M95 76 110 84 110 76')+db(110,77)+arrow('M137 34 137 73 M132 67 137 73 142 67'),
-   '一支啞鈴抱胸，椅子放身後。','臀部往後下坐，輕碰椅面再起身。'],
-  'db-rdl':[
-   head(83,24)+back('M80 81 69 121')+line('M82 38 80 81 96 121 M82 47 99 74')+db(99,77),
-   head(129,60)+back('M74 84 68 103 75 121')+line('M116 68 74 84 94 102 97 121 M116 72 119 108')+db(119,110)+arrow('M47 63 29 74 M35 67 29 74 38 75'),
-   '膝蓋微彎，雙手各持一支啞鈴。','屁股往後推，啞鈴貼腿，背部穩定。'],
-  'db-hip-thrust':[
-   eq('M14 83 54 83 M20 83 20 124 M48 83 48 124')+head(48,64)+line('M56 78 81 107 116 84 133 121')+db(81,103),
-   eq('M14 83 54 83 M20 83 20 124 M48 83 48 124')+head(45,65)+line('M54 78 95 79 123 83 136 121')+db(95,75)+arrow('M80 115 80 87 M75 93 80 87 85 93'),
-   '上背靠穩椅緣，啞鈴加墊放髖上。','腳跟發力推髖，頂端夾臀，不折腰。'],
-  'standing-calf-raise':[
-   eq('M34 49 34 125')+head(80,24)+line('M80 38 80 80 83 108 88 121 108 121 M80 47 59 61 35 60 M80 47 100 71')+db(100,75),
-   eq('M34 49 34 125')+head(80,15)+line('M80 29 80 71 83 99 90 111 109 121 M80 38 58 54 35 55 M80 38 100 62')+db(100,66)+arrow('M132 115 132 88 M127 94 132 88 137 94'),
-   '單手扶穩，另一手持啞鈴。','垂直踮腳，頂端停 1 秒再慢慢下降。'],
-  'band-assisted-pull-up':[
-   eq('M16 16 145 16 M24 16 24 124 M138 16 138 124')+head(80,64)+line('M66 78 94 78 M80 78 80 103 64 119 M80 103 97 119 M66 78 51 50 47 18 M94 78 109 50 113 18')+arrow('M80 18 80 54 M80 84 83 112'),
-   eq('M16 16 145 16 M24 16 24 124 M138 16 138 124')+head(80,13)+line('M66 34 94 34 M80 34 80 75 62 101 M80 75 98 101 M66 34 43 49 47 18 M94 34 117 49 113 18')+arrow('M12 85 12 53 M7 59 12 53 17 59'),
-   '握穩單槓，用足夠的彈力帶輔助。','胸口往槓靠近，不踢腿、不伸脖子。'],
-  'cindy-push-up':[
-   eq('M131 73 158 73 M137 73 137 124')+head(116,48)+line('M104 62 67 86 25 120 M104 65 122 69 140 71'),
-   eq('M131 73 158 73 M137 73 137 124')+head(117,66)+line('M105 79 69 96 25 120 M105 79 124 95 140 71')+arrow('M79 52 83 72 M78 68 83 72 86 66'),
-   '圖示為上斜版本，雙手撐穩椅面。','整個身體一起下降、推回，不塌腰。']
- };
- const alias={'cindy-pull-up':'band-assisted-pull-up','cindy-air-squat':'goblet-squat'};
- let p=poses[alias[id]||id];if(!p)return '';if(id==='cindy-air-squat')p=[p[0].replace(/<g class="weight"[^>]*>[\s\S]*?<\/g>/g,''),p[1].replace(/<g class="weight"[^>]*>[\s\S]*?<\/g>/g,''),'徒手站穩，椅子可作深度參考。','在可控制的深度下蹲，再踩穩站起。'];
- return `<div class="movement-demo" aria-label="動作起始與動作位置示意">${[0,1].map(i=>`<figure class="movement-frame"><svg class="movement-svg" viewBox="0 0 160 136" role="img" aria-label="${i===0?'起始位置':'動作位置'}"><path class="floor" d="M9 126 H151"/>${p[i]}</svg><figcaption><b>${i===0?'1｜起始':'2｜動作'}</b>${p[i+2]}</figcaption></figure>`).join('')}</div>`;
+// 動作圖片不內嵌文字；要領由網頁文字呈現。
+function movementIllustration(id) {
+  const guides = {
+    'neutral-db-shoulder-press': ['中立握啞鈴肩推', '啞鈴放在肩膀兩側，掌心相對。', '往上推，保持軀幹穩定，避免過度拱腰。'],
+    'incline-db-press': ['低上斜中立握啞鈴胸推', '低上斜躺穩，手腕在手肘上方。', '推向胸口上方，肩膀保持穩定。'],
+    'lateral-raise': ['啞鈴側平舉', '手肘微彎，啞鈴放身體兩側。', '手肘帶動向外抬，約到肩高即可。'],
+    'db-overhead-triceps-extension': ['啞鈴過頭三頭屈伸', '雙手握穩同一支啞鈴，上臂朝上。', '伸直手肘，上臂位置大致固定。'],
+    'chest-supported-row': ['胸靠斜椅啞鈴划船', '胸口貼斜椅，手臂自然下垂。', '手肘拉向腰側，胸口持續貼椅。'],
+    'chest-supported-reverse-fly': ['胸靠斜椅反向飛鳥', '胸口貼斜椅，手肘微彎。', '手臂向兩側展開，避免做成划船。'],
+    'hammer-curl': ['啞鈴槌式彎舉', '掌心相對，上臂放身體兩側。', '只彎手肘，不甩身體或抬上臂。'],
+    'dead-bug': ['死蟲式', '仰躺、手朝上，髖膝約呈直角。', '伸展對側手腳，保持下背與骨盆穩定。'],
+    'goblet-squat': ['箱式高腳杯深蹲', '一支啞鈴抱胸，穩固椅子放身後。', '臀部往後下坐，輕碰椅面再起身。'],
+    'db-rdl': ['啞鈴羅馬尼亞硬舉', '膝蓋微彎，雙手各持一支啞鈴。', '臀部往後推，啞鈴貼近腿，背部保持穩定。'],
+    'db-hip-thrust': ['啞鈴臀推', '上背靠穩椅緣，啞鈴加墊放在髖部。', '腳掌踩穩推髖，頂端收緊臀部，不過度拱腰。'],
+    'standing-calf-raise': ['站姿提踵', '單手扶穩，另一手持啞鈴。', '垂直踮腳，頂端停一秒，再慢慢下降。'],
+    'band-assisted-pull-up': ['彈力帶輔助引體向上', '握穩單槓，確認輔助帶固定妥當。', '胸口往槓靠近，不踢腿、不伸脖子。'],
+    'cindy-push-up': ['上斜伏地挺身', '圖示為上斜版本，雙手撐穩椅面。', '整個身體一起下降、推回，不塌腰。'],
+    'cindy-air-squat': ['徒手深蹲', '徒手站穩，雙腳約與肩同寬。', '在可控制的深度下蹲，再踩穩站起。']
+  };
+
+  const key = id === 'cindy-pull-up' ? 'band-assisted-pull-up' : id;
+  if (!Object.prototype.hasOwnProperty.call(guides, key)) return '';
+  const guide = guides[key];
+
+  return '<div class="movement-demo movement-photo-demo" aria-label="動作起始與動作位置示意">' +
+    '<figure class="movement-frame">' +
+    '<img class="movement-photo" data-fitweek-demo ' +
+    'src="./images/exercises/' + key + '.png" ' +
+    'alt="' + guide[0] + '，左圖為起始位置，右圖為動作位置" ' +
+    'loading="lazy" decoding="async" width="1448" height="1086">' +
+    '<p data-fitweek-demo-fallback hidden role="status">圖片暫時無法顯示，請參考下方動作要領。</p>' +
+    '<figcaption><p><b>左圖｜起始位置：</b>' + guide[1] + '</p>' +
+    '<p><b>右圖｜動作位置：</b>' + guide[2] + '</p></figcaption>' +
+    '</figure></div>';
+}
+
+// 圖片載入失敗時，完整文字要領仍可使用。
+if (typeof document !== 'undefined') {
+  document.addEventListener('error', function (event) {
+    const target = event.target;
+    if (!target || target.tagName !== 'IMG' || !target.hasAttribute('data-fitweek-demo')) return;
+    target.style.display = 'none';
+    const frame = target.closest('.movement-frame');
+    const fallback = frame && frame.querySelector('[data-fitweek-demo-fallback]');
+    if (fallback) fallback.hidden = false;
+  }, true);
 }
