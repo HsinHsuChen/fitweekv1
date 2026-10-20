@@ -1,5 +1,5 @@
 {
-  "appVersion": "2.4.0",
+  "appVersion": "2.5.0",
   "curriculumVersion": "2.2",
   "updatedAt": "2026-10-14",
   "global": {
@@ -61,7 +61,8 @@
           "restSeconds": 120,
           "loadDescription": "新動作，自行選擇輕重量校準。",
           "effort": "前兩次保留約 3～4 下餘力；熟悉後保留約 2～3 下。組間預設 120 秒，必要時休到 180 秒。",
-          "weightType": "dumbbell"
+          "weightType": "dumbbell",
+          "loadUnits": 2
         },
         {
           "id": "incline-db-press",
@@ -81,7 +82,8 @@
           "tempo": "下降 2～3 秒",
           "restSeconds": 120,
           "effort": "保留約 2～3 下餘力；組間預設 120 秒，必要時休到 180 秒。",
-          "weightType": "dumbbell"
+          "weightType": "dumbbell",
+          "loadUnits": 2
         },
         {
           "id": "lateral-raise",
@@ -101,7 +103,8 @@
           "tempo": "上 1 秒、下 2 秒",
           "restSeconds": 90,
           "effort": "選擇能控制 12～20 下的重量，結束時仍保留約 2～3 下餘力。",
-          "weightType": "dumbbell"
+          "weightType": "dumbbell",
+          "loadUnits": 2
         },
         {
           "id": "db-overhead-triceps-extension",
@@ -122,7 +125,8 @@
           "restSeconds": 90,
           "loadDescription": "同一支啞鈴由雙手持握；重量欄填該支重量。",
           "effort": "前兩次保留約 3～4 下餘力；熟悉後保留約 2～3 下，不刻意做到力竭。",
-          "weightType": "dumbbell"
+          "weightType": "dumbbell",
+          "loadUnits": 1
         }
       ],
       "sessionFocusByWeekday": {
@@ -188,7 +192,8 @@
           "tempo": "拉 1 秒、放 2 秒",
           "restSeconds": 120,
           "effort": "保留約 2～3 下餘力，維持相同姿勢與可控制的活動幅度。",
-          "weightType": "dumbbell"
+          "weightType": "dumbbell",
+          "loadUnits": 2
         },
         {
           "id": "chest-supported-reverse-fly",
@@ -208,7 +213,8 @@
           "tempo": "上 1 秒、下 2 秒",
           "restSeconds": 90,
           "effort": "選擇能控制 12～20 下的輕重量，結束時仍保留約 2～3 下餘力。",
-          "weightType": "dumbbell"
+          "weightType": "dumbbell",
+          "loadUnits": 2
         },
         {
           "id": "hammer-curl",
@@ -228,7 +234,8 @@
           "tempo": "上 1 秒、下 2 秒",
           "restSeconds": 90,
           "effort": "保留約 2～3 下餘力，維持相同姿勢與可控制的活動幅度。",
-          "weightType": "dumbbell"
+          "weightType": "dumbbell",
+          "loadUnits": 2
         }
       ],
       "sessionNote": "引體目前穩定徒手 3 下，正式組使用彈力帶輔助，完成 5～8 下且保留約 2 下餘力；不固定追加失敗後硬撐 5 秒。備註記錄彈力帶與掛法。"
@@ -274,7 +281,8 @@
           "tempo": "下降 2～3 秒",
           "restSeconds": 120,
           "effort": "保留約 2～3 下餘力，先穩定姿勢再增加重量或次數。",
-          "weightType": "dumbbell"
+          "weightType": "dumbbell",
+          "loadUnits": 1
         },
         {
           "id": "db-rdl",
@@ -294,7 +302,8 @@
           "tempo": "下降 3 秒",
           "restSeconds": 120,
           "effort": "保留約 2～3 下餘力，先穩定姿勢再增加重量或次數。",
-          "weightType": "dumbbell"
+          "weightType": "dumbbell",
+          "loadUnits": 2
         },
         {
           "id": "db-hip-thrust",
@@ -314,7 +323,8 @@
           "tempo": "頂端停 1 秒",
           "restSeconds": 90,
           "effort": "保留約 2～3 下餘力，先穩定姿勢再增加重量或次數。",
-          "weightType": "dumbbell"
+          "weightType": "dumbbell",
+          "loadUnits": 1
         },
         {
           "id": "standing-calf-raise",
@@ -335,7 +345,8 @@
           "tempo": "上停 1 秒、下 2 秒",
           "restSeconds": 90,
           "effort": "保留約 2～3 下餘力，先穩定姿勢再增加重量或次數。",
-          "weightType": "dumbbell"
+          "weightType": "dumbbell",
+          "loadUnits": 1
         }
       ]
     },
@@ -403,6 +414,17 @@
     }
   },
   "changelog": [
+    {
+      "version": "2.5.0",
+      "date": "2026-10-20",
+      "changes": [
+        "重整為訓練、飲食、回顧、設定四個入口，統一暖白與青綠配色",
+        "上次同條件紀錄、RPE餘力提示、離線動作示意與精簡卡片",
+        "飲食按日期獨立儲存，每餐最多6張照片，未填資料不當成否定",
+        "雙啞鈴總量按支數計算，同筆訓練更新原紀錄，開始與完成時間明確",
+        "新增歷史紀錄修正與課表篩選；保留既有課表、小工具與每日03:00規則"
+      ]
+    },
     {
       "version": "2.4.0",
       "date": "2026-10-17",

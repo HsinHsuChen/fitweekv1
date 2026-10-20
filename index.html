@@ -3,210 +3,66 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1b1713">
+<meta name="theme-color" content="#356a5b">
 <link rel="manifest" href="./manifest.json">
-<link rel="stylesheet" href="./styles.css?v=2.4.0">
-<title>Training System V2</title>
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="stylesheet" href="./styles.css?v=2.5.0">
+<title>FitWeek｜我的訓練紀錄</title>
 </head>
 <body>
 <main class="app">
-  <div class="topbar">
-    <div>
-      <div class="eyebrow">Personal Training Web App</div>
-      <div class="title">Training System</div>
-      <div id="version" class="version">載入中</div>
-    </div>
-    <div id="target" class="small muted"></div>
-  </div>
-
-  <div id="fatal" class="card hidden">無法載入 curriculum.json。請透過 GitHub Pages 或本機伺服器開啟，不要直接點擊 file://。</div>
-
-  <div id="metro" class="metro">
-    <div class="metro-dot"></div>
-    <div class="grow"><b>60 BPM｜5 拍循環</b><div class="small" style="opacity:.65">第 1 拍重音；切換或縮小分頁仍持續播放</div></div>
-    <div id="metroBeat" class="metro-beat" aria-live="polite">1／5</div>
-    <button id="metroBtn" class="secondary">開始</button>
-  </div>
-
-  <section id="streakCard" class="streak-card" aria-label="連續訓練次數">
-    <div class="streak-main">
-      <div class="streak-total"><svg class="streak-flame" viewBox="0 0 64 80" aria-hidden="true"><defs><linearGradient id="fwFlameOuter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a2e"/><stop offset="1" stop-color="#d9361b"/></linearGradient><linearGradient id="fwFlameMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd04a"/><stop offset="1" stop-color="#ff8a1f"/></linearGradient><linearGradient id="fwFlameCore" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8cf"/><stop offset="1" stop-color="#ffe27a"/></linearGradient></defs><path fill="url(#fwFlameOuter)" d="M32 2C34 18 56 28 56 52C56 68 45 78 32 78C19 78 8 68 8 52C8 41 14 34 19 28C20 36 24 40 28 41C24 28 27 14 32 2Z"/><path fill="url(#fwFlameMid)" d="M32 26C34 36 47 42 47 56C47 66 40 73 32 73C24 73 17 66 17 56C17 49 21 44 25 40C26 45 29 47 31 47C29 40 30 32 32 26Z"/><path fill="url(#fwFlameCore)" d="M32 50C33 55 39 58 39 64C39 69 36 71 32 71C28 71 25 69 25 64C25 60 28 56 29 53C30 55 31 56 32 56C32 54 32 52 32 50Z"/></svg><strong id="streakCount" aria-live="polite">0</strong><span>次</span></div>
-      <div class="streak-copy"><b>連續訓練</b><div id="streakMessage">正在讀取紀錄…</div><div id="streakDeadline" class="streak-deadline"></div></div>
-    </div>
-    <div class="streak-actions"><span>每日03:00檢查・每筆＋1</span><button type="button" data-sync-streak disabled>同步到桌面</button></div>
-    <div id="streakSyncStatus" class="streak-sync-status" role="status"></div>
-  </section>
-
-  <section id="todayView" class="view active">
+  <header class="topbar"><div><div class="brand">FitWeek<span class="brand-dot"></span></div><div id="todayDate" class="small muted"></div></div><div id="saveStatus" class="save-status" role="status">正在讀取紀錄</div></header>
+  <div id="fatal" class="card error-box hidden" role="alert">網頁尚未完成載入，請確認更新包已完整發布，再重新整理。</div>
+  <details id="streakCard" class="streak-card" aria-label="連續訓練次數">
+    <summary><span class="streak-total"><svg class="streak-flame" viewBox="0 0 64 80" aria-hidden="true"><defs><linearGradient id="fwFlameOuter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a2e"/><stop offset="1" stop-color="#d9361b"/></linearGradient><linearGradient id="fwFlameMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd04a"/><stop offset="1" stop-color="#ff8a1f"/></linearGradient></defs><path fill="url(#fwFlameOuter)" d="M32 2C34 18 56 28 56 52C56 68 45 78 32 78C19 78 8 68 8 52C8 41 14 34 19 28C20 36 24 40 28 41C24 28 27 14 32 2Z"/><path fill="url(#fwFlameMid)" d="M32 26C34 36 47 42 47 56C47 66 40 73 32 73C24 73 17 66 17 56C17 49 21 44 25 40C26 45 29 47 31 47C29 40 30 32 32 26Z"/></svg><span>連續訓練 <strong id="streakCount">0</strong> 次</span></span><span class="small muted">紀錄詳情 ⌄</span></summary>
+    <div class="streak-detail"><div id="streakMessage">正在讀取紀錄…</div><div id="streakDeadline" class="small muted"></div><p class="small muted">每日 03:00 檢查，每筆有效訓練加 1 次；週日休息保留紀錄。</p><button type="button" class="secondary" data-sync-streak disabled>同步到桌面小工具</button><div id="streakSyncStatus" class="small" role="status"></div></div>
+  </details>
+  <div id="metro" class="metro" aria-label="訓練節拍器"><span class="metro-dot" aria-hidden="true"></span><div class="grow"><b>60 BPM</b><span id="metroStatus" class="metro-status">5 拍・第 1 拍重音</span></div><span id="metroBeat" class="metro-beat" aria-hidden="true">1／5</span><button id="metroBtn" class="secondary" type="button" aria-label="開始節拍器">開始</button></div>
+  <section id="todayView" class="view active" aria-label="訓練">
     <div id="workoutPanel">
-      <div class="card">
-        <div class="row">
-          <div class="grow"><b id="dayTitle">今日訓練</b><div class="small muted">每天 3～5 個固定動作；點開卡片就能看完整要領</div></div>
-          <div class="day-pills"><button class="day-pill active" data-day="A">A</button><button class="day-pill" data-day="B">B</button><button class="day-pill" data-day="C">C</button><button class="day-pill" data-day="D">D</button></div>
-        </div>
-        <div class="progress" style="margin-top:12px"><div id="progressBar"></div></div>
-        <div id="progressText" class="small muted" style="margin-top:5px"></div>
+      <div class="section-heading"><div><div class="eyebrow">TODAY'S SESSION</div><h1 id="dayTitle">今日訓練</h1></div><button class="text-button" type="button" data-open-curriculum>完整課表</button></div>
+      <div class="card session-card">
+        <div class="day-pills" aria-label="切換課表"><button type="button" class="day-pill active" data-day="A">A <span>胸肩三頭</span></button><button type="button" class="day-pill" data-day="B">B <span>背肩二頭</span></button><button type="button" class="day-pill" data-day="C">C <span>腿臀核心</span></button><button type="button" class="day-pill" data-day="D">D <span>Cindy</span></button></div>
+        <div class="session-toolbar"><div><b id="sessionStatus">尚未開始</b><div id="target" class="small muted"></div></div><button id="startWorkoutBtn" type="button">開始訓練</button></div>
+        <div class="progress"><div id="progressBar"></div></div><div class="row progress-caption"><span id="progressText" class="small muted grow"></span><span id="sessionClock" class="small muted"></span></div>
       </div>
-
-      <div class="card">
-        <div class="row">
-          <div class="field smallfield"><label>睡眠（小時）</label><input id="sleep" inputmode="decimal"></div>
-          <div class="field smallfield"><label>左手腕痛 0–10</label><input id="wrist" type="number" min="0" max="10" value="0"></div>
-          <div class="field smallfield"><label>左肩痛 0–10</label><input id="shoulder" type="number" min="0" max="10" value="0"></div>
-          <div class="field smallfield"><label>膝蓋痛 0–10</label><input id="knee" type="number" min="0" max="10" value="0"></div>
-          <div class="field"><label>胃食道逆流</label><select id="gerd"><option>無</option><option>輕微</option><option>明顯</option></select></div>
-        </div>
-      </div>
-
-      <div class="card diet-card">
-        <div class="row">
-          <div class="grow">
-            <b>今日飲食紀錄</b>
-            <div class="small muted">沿用 V1 的飲食檢核，資料會自動存入 IndexedDB 並帶入訓練總結。</div>
-          </div>
-        </div>
-
-        <div class="diet-checks">
-          <label class="check-tile good-check"><input id="dProtein" type="checkbox"><span>蛋白質達標（140g+）</span></label>
-          <label class="check-tile warn-check"><input id="dBeer" type="checkbox"><span>今天喝了啤酒</span></label>
-          <label class="check-tile warn-check"><input id="dChicken" type="checkbox"><span>今天吃了鹹酥雞</span></label>
-          <label class="check-tile warn-check"><input id="dCookie" type="checkbox"><span>今天吃了餅乾</span></label>
-          <label class="check-tile warn-check"><input id="dLateEat" type="checkbox"><span>晚上飲食失控</span></label>
-        </div>
-
-        <div class="row diet-numbers">
-          <div class="field smallfield"><label>蛋白質估計（g）</label><input id="proteinGrams" type="number" min="0" inputmode="numeric" placeholder="例如 120"></div>
-          <div class="field smallfield"><label>飲水量（ml）</label><input id="waterMl" type="number" min="0" inputmode="numeric" placeholder="例如 2700"></div>
-          <div class="field smallfield"><label>今日體重（kg）</label><input id="bodyWeight" inputmode="decimal" placeholder="選填"></div>
-        </div>
-
-        <div class="meal-grid">
-          <div class="field"><label>早餐</label><textarea id="breakfast" rows="2" placeholder="餐點、份量或未吃"></textarea></div>
-          <div class="field"><label>午餐</label><textarea id="lunch" rows="2" placeholder="餐點與大致份量"></textarea></div>
-          <div class="field"><label>晚餐</label><textarea id="dinner" rows="2" placeholder="餐點與大致份量"></textarea></div>
-        </div>
-
-
-        <div class="meal-photo-section">
-          <div class="row">
-            <div class="grow">
-              <b>餐點照片</b>
-              <div class="small muted">每餐最多 2 張。系統會壓縮後存入 IndexedDB；匯出時可連同報告一起交給 ChatGPT 估算熱量與蛋白質。</div>
-            </div>
-          </div>
-
-          <div class="photo-tip">
-            建議拍攝 45° 斜上方或正上方，讓整份餐點、飲料與醬料都入鏡；份量不明時在餐點文字補充碗／盤尺寸、重量或是否加油。
-          </div>
-
-          <div class="meal-photo-grid">
-            <div class="meal-photo-card">
-              <div class="row"><b class="grow">早餐照片</b><span class="photo-count" data-photo-count="breakfast">0/2</span></div>
-              <label class="photo-add">拍照／選照片<input type="file" accept="image/*" multiple data-photo-input="breakfast" class="hidden"></label>
-              <div class="photo-status small muted" data-photo-status="breakfast"></div>
-              <div class="photo-preview-grid" data-photo-preview="breakfast"></div>
-            </div>
-            <div class="meal-photo-card">
-              <div class="row"><b class="grow">午餐照片</b><span class="photo-count" data-photo-count="lunch">0/2</span></div>
-              <label class="photo-add">拍照／選照片<input type="file" accept="image/*" multiple data-photo-input="lunch" class="hidden"></label>
-              <div class="photo-status small muted" data-photo-status="lunch"></div>
-              <div class="photo-preview-grid" data-photo-preview="lunch"></div>
-            </div>
-            <div class="meal-photo-card">
-              <div class="row"><b class="grow">晚餐照片</b><span class="photo-count" data-photo-count="dinner">0/2</span></div>
-              <label class="photo-add">拍照／選照片<input type="file" accept="image/*" multiple data-photo-input="dinner" class="hidden"></label>
-              <div class="photo-status small muted" data-photo-status="dinner"></div>
-              <div class="photo-preview-grid" data-photo-preview="dinner"></div>
-            </div>
-            <div class="meal-photo-card">
-              <div class="row"><b class="grow">加餐／宵夜照片</b><span class="photo-count" data-photo-count="snack">0/2</span></div>
-              <label class="photo-add">拍照／選照片<input type="file" accept="image/*" multiple data-photo-input="snack" class="hidden"></label>
-              <div class="photo-status small muted" data-photo-status="snack"></div>
-              <div class="photo-preview-grid" data-photo-preview="snack"></div>
-            </div>
-          </div>
-        </div>
-
-        <label style="margin-top:10px">加餐／恢復／腸胃備註</label>
-        <textarea id="nutrition" rows="2" placeholder="宵夜、零食、疲勞、腸胃反應等"></textarea>
-      </div>
-
-      <div id="exerciseList"></div>
-      <button id="finishBtn" class="good full">完成訓練</button>
+      <details class="card readiness-card"><summary><b>今天的身體狀況</b><span class="small muted">選填・有不適請記錄</span></summary><div class="health-grid"><div class="field"><label for="sleep">睡眠（小時）</label><input id="sleep" type="number" min="0" max="24" step="0.5" inputmode="decimal" placeholder="未記錄"></div><div class="field"><label for="wrist">左手腕痛 0–10</label><input id="wrist" type="number" min="0" max="10" inputmode="numeric" placeholder="未記錄"></div><div class="field"><label for="shoulder">左肩痛 0–10</label><input id="shoulder" type="number" min="0" max="10" inputmode="numeric" placeholder="未記錄"></div><div class="field"><label for="knee">膝蓋痛 0–10</label><input id="knee" type="number" min="0" max="10" inputmode="numeric" placeholder="未記錄"></div><div class="field"><label for="gerd">胃食道逆流</label><select id="gerd"><option value="">未記錄</option><option>無</option><option>輕微</option><option>明顯</option></select></div></div></details>
+      <div id="trainingNotice" class="inline-notice hidden" role="status"></div><div id="exerciseList"></div><button id="finishBtn" class="good full finish-button" type="button">完成並儲存訓練</button><p class="small muted center">每組只計標準完成的次數；未完成的組可以留白。</p>
     </div>
-
     <div id="summaryPanel" class="hidden">
-      <div class="completion-hero card">
-        <div class="completion-mark">✓</div>
-        <div><div class="eyebrow">WORKOUT SAVED</div><h2>今日訓練完成</h2><div id="summaryHeadline" class="muted"></div></div>
-      </div>
-      <div id="summaryStats" class="summary-stats"></div>
-      <div id="prCard" class="card hidden"></div>
-      <div id="summaryMealPhotos" class="card hidden">
-        <div class="row"><div class="grow"><b>餐點照片</b><div class="small muted">這些照片會包含在 ChatGPT 報告包或手機分享附件中。</div></div></div>
-        <div id="summaryPhotoGrid" class="summary-photo-grid"></div>
-      </div>
-      <div class="card">
-        <div class="row"><b class="grow">完整訓練總結</b><button id="copyBtn" class="secondary">複製給 ChatGPT</button></div>
-        <pre id="report" class="report"></pre>
-      </div>
-      <div class="summary-actions summary-actions-wide">
-        <button id="shareReportBtn" class="good">分享報告＋照片</button>
-        <button id="downloadReportBtn">下載 ChatGPT 報告包</button>
-        <button id="copyBtnBottom" class="secondary">只複製文字報告</button>
-        <button id="backWorkoutBtn" class="secondary">返回今日訓練</button>
-        <button id="newWorkoutBtn" class="secondary">開始新一筆訓練</button>
-      </div>
-      <div class="small muted share-note">手機分享時請在分享面板選擇 ChatGPT；若裝置不支援多檔分享，系統會改下載 ZIP 報告包。</div>
+      <div class="completion-hero card"><span class="completion-mark" aria-hidden="true">✓</span><div><div class="eyebrow">SESSION SAVED</div><h1>本筆訓練已儲存</h1><div id="summaryHeadline" class="small muted"></div></div></div><div id="summaryStats" class="summary-stats"></div><div id="prCard" class="card hidden"></div><div id="summaryMealPhotos" class="card hidden"><b>當日餐點照片</b><div id="summaryPhotoGrid" class="summary-photo-grid"></div></div>
+      <button id="shareReportBtn" type="button" class="good full">分享給 ChatGPT</button><details class="card report-options"><summary>完整報告與其他匯出方式</summary><pre id="report" class="report"></pre><div class="row"><button id="copyBtn" type="button" class="secondary">複製文字</button><button id="downloadReportBtn" type="button" class="secondary">下載含照片報告包</button></div></details><div class="summary-actions"><button id="backWorkoutBtn" type="button" class="secondary">返回修改本筆</button><button id="newWorkoutBtn" type="button" class="secondary">開始新一筆訓練</button></div><button type="button" class="text-button full" data-sync-streak disabled>同步到桌面小工具</button>
     </div>
   </section>
-
-  <section id="curriculumView" class="view">
-    <details class="card weekly-review"><summary><b>每週重量檢視與建議</b></summary><p id="weeklyPeriod" class="small muted"></p><p id="weeklyOverview" class="small"></p><p class="small muted">每週一檢視上週紀錄。A日肩優先與胸優先分開比較；加重需同重量連續兩次達標、每組RPE≤8且姿勢標準。資料不足先維持，Cindy不納入啞鈴加重。</p><div id="weeklyReviewRows"></div><button id="applyWeeklyBtn" type="button" class="good full">套用勾選的建議重量</button><div id="weeklyStatus" class="small muted" role="status"></div></details>
-    <div class="card"><b>課表執行原則</b><div id="trainingPrinciple" class="small muted"></div></div>
-    <div class="card"><b>何時增加重量或降低輔助</b><div id="progressionRule" class="small muted"></div></div>
-    <div class="card"><b>現有器材與安全限制</b><div id="equipmentSummary" class="small muted"></div><div id="equipmentSafety" class="equipment-warning small"></div></div>
-    <div id="curriculumDays"></div><h3>更新紀錄</h3><div id="changelog"></div>
+  <section id="nutritionView" class="view" aria-label="飲食">
+    <div class="section-heading"><div><div class="eyebrow">DAILY NUTRITION</div><h1>飲食紀錄</h1></div><div class="field date-field"><label class="sr-only" for="nutritionDate">飲食日期</label><input id="nutritionDate" type="date"></div></div><p class="small muted">按日期儲存，休息日也能記。訓練報告會帶入當日飲食。</p>
+    <div class="card"><div class="nutrition-metrics"><div class="field"><label for="proteinGrams">蛋白質估計（g）</label><input id="proteinGrams" type="number" min="0" inputmode="decimal" placeholder="選填"></div><div class="field"><label for="waterMl">飲水量（ml）</label><input id="waterMl" type="number" min="0" inputmode="numeric" placeholder="選填"></div><div class="field"><label for="bodyWeight">體重（kg）</label><input id="bodyWeight" type="number" min="0" step="0.1" inputmode="decimal" placeholder="選填"></div></div><div class="protein-progress"><div class="field"><label for="dProtein">蛋白質 140g 目標</label><select id="dProtein"><option value="">未確認</option><option value="yes">已達標</option><option value="no">未達標</option></select></div><span id="proteinStatus" class="small muted">填入克數後自動判斷</span></div></div>
+    <div class="meal-grid">
+      <article class="card meal-photo-card"><div class="row"><h2 class="grow">早餐</h2><span class="photo-count" data-photo-count="breakfast">0/6</span></div><label class="sr-only" for="breakfast">早餐內容與份量</label><textarea id="breakfast" rows="2" placeholder="吃了什麼、多少？共食請寫自己吃的份量"></textarea><label class="photo-add">＋ 加入早餐照片<input type="file" accept="image/*" multiple data-photo-input="breakfast" class="sr-only"></label><div class="photo-status small muted" data-photo-status="breakfast"></div><div class="photo-preview-grid" data-photo-preview="breakfast"></div></article>
+      <article class="card meal-photo-card"><div class="row"><h2 class="grow">午餐</h2><span class="photo-count" data-photo-count="lunch">0/6</span></div><label class="sr-only" for="lunch">午餐內容與份量</label><textarea id="lunch" rows="2" placeholder="吃了什麼、多少？共食請寫自己吃的份量"></textarea><label class="photo-add">＋ 加入午餐照片<input type="file" accept="image/*" multiple data-photo-input="lunch" class="sr-only"></label><div class="photo-status small muted" data-photo-status="lunch"></div><div class="photo-preview-grid" data-photo-preview="lunch"></div></article>
+      <article class="card meal-photo-card"><div class="row"><h2 class="grow">晚餐</h2><span class="photo-count" data-photo-count="dinner">0/6</span></div><label class="sr-only" for="dinner">晚餐內容與份量</label><textarea id="dinner" rows="2" placeholder="吃了什麼、多少？共食請寫自己吃的份量"></textarea><label class="photo-add">＋ 加入晚餐照片<input type="file" accept="image/*" multiple data-photo-input="dinner" class="sr-only"></label><div class="photo-status small muted" data-photo-status="dinner"></div><div class="photo-preview-grid" data-photo-preview="dinner"></div></article>
+      <article class="card meal-photo-card"><div class="row"><h2 class="grow">加餐／點心</h2><span class="photo-count" data-photo-count="snack">0/6</span></div><label class="sr-only" for="snack">加餐內容與份量</label><textarea id="snack" rows="2" placeholder="飲料、點心、乳清等，寫份量即可"></textarea><label class="photo-add">＋ 加入加餐照片<input type="file" accept="image/*" multiple data-photo-input="snack" class="sr-only"></label><div class="photo-status small muted" data-photo-status="snack"></div><div class="photo-preview-grid" data-photo-preview="snack"></div></article>
+    </div><p class="small muted">每餐最多 6 張，會自動壓縮。不同角度可一起上傳，文字請註明實際吃的份量。</p>
+    <details class="card"><summary>其他飲食與恢復紀錄（選填）</summary><div class="extra-diet-grid"><div class="field"><label for="dBeer">啤酒</label><select id="dBeer"><option value="">未記錄</option><option value="no">沒有</option><option value="yes">有</option></select></div><div class="field"><label for="dChicken">鹹酥雞</label><select id="dChicken"><option value="">未記錄</option><option value="no">沒有</option><option value="yes">有</option></select></div><div class="field"><label for="dCookie">餅乾</label><select id="dCookie"><option value="">未記錄</option><option value="no">沒有</option><option value="yes">有</option></select></div><div class="field"><label for="dLateEat">晚間飲食超出原定份量</label><select id="dLateEat"><option value="">未記錄</option><option value="no">沒有</option><option value="yes">有</option></select></div></div><label for="nutrition">份量、恢復與腸胃備註</label><textarea id="nutrition" rows="3" placeholder="例如餅乾半包、今天很累，或餐後有逆流"></textarea></details>
   </section>
-
-  <section id="historyView" class="view">
-    <div class="card"><b>訓練歷史</b><div class="small muted">資料儲存在目前手機瀏覽器的 IndexedDB。</div><div id="historyList"></div></div>
+  <section id="reviewView" class="view" aria-label="回顧">
+    <div class="section-heading"><div><div class="eyebrow">YOUR PROGRESS</div><h1>訓練回顧</h1></div></div><div id="reviewStats" class="summary-stats review-stats"></div>
+    <details id="weeklyReviewPanel" class="card weekly-review"><summary><b>本週重量建議</b><span id="weeklyActionCount" class="small muted"></span></summary><p id="weeklyPeriod" class="small muted"></p><p id="weeklyOverview" class="small"></p><p class="small muted">依上週紀錄檢視；A 日不同優先順序分開比較。先確認建議，再勾選套用。</p><div id="weeklyReviewRows"></div><button id="weeklyShowAll" type="button" class="text-button full">顯示全部動作</button><button id="applyWeeklyBtn" type="button" class="good full">套用勾選的建議重量</button><div id="weeklyStatus" class="small" role="status"></div></details>
+    <div class="card"><div class="row"><h2 class="grow">歷史紀錄</h2><select id="historyDay" class="filter-select" aria-label="依課表篩選"><option value="">全部課表</option><option value="A">Day A</option><option value="B">Day B</option><option value="C">Day C</option><option value="D">Day D</option></select></div><div id="historyList"></div></div>
+    <section id="historyEditor" class="card hidden" aria-label="修改歷史紀錄"><h2>修改這筆紀錄</h2><p id="historyEditorTitle" class="small muted"></p><div id="historyEditorFields"></div><p id="historyEditorStatus" class="small" role="status"></p><div class="row"><button id="saveHistoryBtn" type="button" class="good">儲存修改</button><button id="cancelHistoryBtn" type="button" class="secondary">取消</button></div></section>
+    <details id="curriculumView" class="card curriculum-reference"><summary><b>完整課表與執行原則</b></summary><p id="trainingPrinciple" class="small muted"></p><details class="reference-detail"><summary>加重與器材注意事項</summary><p id="progressionRule" class="small muted"></p><p id="equipmentSummary" class="small muted"></p><p id="equipmentSafety" class="small muted"></p></details><div id="curriculumDays"></div></details>
   </section>
-
-  <section id="settingsView" class="view">
-    <div class="card widget-setup">
-      <b>iPhone 桌面小工具</b>
-      <p class="small muted">火焰與連續訓練次數。完成訓練後按「同步到桌面」，會開啟 Scriptable 更新資料。</p>
-      <ol class="small">
-        <li><a href="https://apps.apple.com/tw/app/scriptable/id1405459188" target="_blank" rel="noopener">安裝 Scriptable</a>。</li>
-        <li>按下方「複製小工具程式」，到 Scriptable 按＋，貼上並將名稱設為 <b>FitWeek-Streak</b>。</li>
-        <li>回到原本的訓練網頁，按「同步到桌面」。Scriptable 會顯示預覽。</li>
-        <li>長按 iPhone 主畫面 → 編輯 → 加入小工具 → Scriptable，選小尺寸。</li>
-        <li>長按加入的小工具 → 編輯小工具 → Script，選 <b>FitWeek-Streak</b>。</li>
-      </ol>
-      <div class="row"><button id="copyWidgetBtn" type="button">複製小工具程式</button><a class="widget-download" href="./FitWeek-Streak.js" download="FitWeek-Streak.js">下載程式</a><button type="button" class="secondary" data-sync-streak disabled>同步到桌面</button></div>
-      <div id="widgetCopyStatus" class="small muted" role="status"></div>
-      <textarea id="widgetSource" rows="8" class="hidden widget-source" aria-label="小工具程式碼" readonly></textarea>
-      <p class="small muted">依台灣時間，每天03:00檢查剛結束的24小時區間：有有效訓練就接續，沒有則中斷。每筆按「完成訓練」儲存且至少完成1組的不同訓練各加1次，同區間可累計多次；同一訓練重複儲存只算1次。以訓練起始時間歸屬區間，03:00整算下一區間。</p>
-      <p class="small muted">例：週二上午、週三晚上各練一次，兩個區間都有紀錄就接續算2次。週日03:00～週一03:00為休息區間，不練保留次數；週一03:00～週二03:00仍需有紀錄。中斷後下一筆從1開始。小工具需更新程式並重新同步；iOS桌面刷新可能延後。</p>
-    </div>
-    <div class="card"><b>資料備份</b><p class="small muted">IndexedDB 不會自動同步到 Git。建議定期匯出 JSON。</p><div class="row"><button id="exportBtn">匯出 JSON</button><label class="secondary file-button">匯入 JSON<input id="importFile" type="file" accept=".json" class="hidden"></label></div></div>
-    <div class="card"><b>PWA 安裝</b><p class="small muted">iPhone：Safari 分享 → 加入主畫面。Android：Chrome 選單 → 安裝應用程式／加到主畫面。</p></div>
-    <div class="card"><b>危險操作</b><p class="small muted">清除只影響目前手機與瀏覽器。</p><button id="resetBtn" class="danger">清除全部本機資料</button></div>
+  <section id="settingsView" class="view" aria-label="設定">
+    <div class="section-heading"><div><div class="eyebrow">PREFERENCES</div><h1>設定</h1></div><span id="version" class="small muted"></span></div>
+    <div class="card"><h2>資料備份</h2><p class="small muted">紀錄保存在這台裝置的瀏覽器。更換手機或清除瀏覽資料前，請先備份。</p><div class="row"><button id="exportBtn" type="button">下載完整備份</button><label class="secondary file-button">還原備份<input id="importFile" type="file" accept=".json" class="sr-only"></label></div><p id="backupStatus" class="small muted" role="status"></p></div>
+    <details class="card widget-setup"><summary><b>iPhone 桌面小工具</b></summary><p class="small muted">完成訓練後按「同步到桌面小工具」，開啟 Scriptable 更新次數。</p><ol class="small"><li><a href="https://apps.apple.com/tw/app/scriptable/id1405459188" target="_blank" rel="noopener">安裝 Scriptable</a>。</li><li>複製下方程式，在 Scriptable 新增並命名為 <b>FitWeek-Streak</b>。</li><li>回到網頁按「同步到桌面小工具」。</li><li>在 iPhone 主畫面加入 Scriptable 小尺寸小工具，選擇 FitWeek-Streak。</li></ol><div class="row"><button id="copyWidgetBtn" type="button" class="secondary">複製小工具程式</button><a class="widget-download" href="./FitWeek-Streak.js" download="FitWeek-Streak.js">下載程式</a><button type="button" class="secondary" data-sync-streak disabled>同步到桌面小工具</button></div><div id="widgetCopyStatus" class="small" role="status"></div><textarea id="widgetSource" rows="8" class="hidden widget-source" aria-label="小工具程式碼" readonly></textarea><p class="small muted">台灣時間每日 03:00 檢查剛結束的 24 小時區間；有有效訓練就接續，沒有則中斷。每筆不同訓練加 1 次，同區間可累計多次；同一訓練重複儲存只算 1 次。以訓練起始時間歸屬區間。</p><p class="small muted">週日 03:00 至週一 03:00 是休息區間，不練保留次數。iOS 小工具刷新可能延後，以最後同步資料為準。</p></details>
+    <details class="card"><summary><b>加入手機主畫面</b></summary><p class="small muted">iPhone：Safari 分享 → 加入主畫面。Android：Chrome 選單 → 安裝應用程式。</p></details>
+    <details class="card"><summary><b>更新紀錄</b></summary><div id="changelog"></div></details>
+    <details class="card"><summary class="danger-text">清除本機資料</summary><p class="small muted">清除這台裝置上的訓練、飲食與設定，無法復原。建議先下載完整備份。</p><button id="resetBtn" type="button" class="danger">清除全部本機資料</button></details>
   </section>
 </main>
-
-<nav class="tabs">
-  <button class="tab active" data-view="todayView">今日訓練</button>
-  <button class="tab" data-view="curriculumView">課表</button>
-  <button class="tab" data-view="historyView">歷史</button>
-  <button class="tab" data-view="settingsView">設定</button>
-</nav>
-<script src="./jszip.min.js?v=2.4.0"></script>
-<script src="./streak.js?v=2.4.0"></script>
-<script src="./weekly-weights.js?v=2.4.0"></script>
-<script src="./cindy.js?v=2.4.0"></script>
-<script src="./app.js?v=2.4.0"></script>
-<script src="./features.js?v=2.4.0"></script>
+<nav class="tabs" aria-label="主要功能"><button type="button" class="tab active" data-view="todayView"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8v8M4 9v6M17 8v8M20 9v6M7 12h10"/></svg>訓練</button><button type="button" class="tab" data-view="nutritionView"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v7M8 3v7M5 7h3M6.5 10v11M17 3v18M17 3c-4 3-4 8 0 9"/></svg>飲食</button><button type="button" class="tab" data-view="reviewView"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 16v-5M12 16V5M18 16V9"/></svg>回顧</button><button type="button" class="tab" data-view="settingsView"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-1 3-3 1v4l-2 1 2 1v4l3 1 1 3h6l1-3 3-1v-4l2-1-2-1V7l-3-1-1-3Z"/><circle cx="12" cy="12" r="3"/></svg>設定</button></nav>
+<script src="./jszip.min.js?v=2.5.0"></script><script src="./streak.js?v=2.5.0"></script><script src="./weekly-weights.js?v=2.5.0"></script><script src="./cindy.js?v=2.5.0"></script><script src="./exercise-demos.js?v=2.5.0"></script><script src="./app.js?v=2.5.0"></script><script src="./features.js?v=2.5.0"></script><script src="./ui.js?v=2.5.0"></script>
 </body>
 </html>

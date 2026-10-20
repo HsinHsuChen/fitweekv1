@@ -1,9 +1,20 @@
 {
-  "name": "Training System V2",
-  "short_name": "Training V2",
+  "name": "FitWeek｜我的訓練紀錄",
+  "short_name": "FitWeek",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f5f2ed",
-  "theme_color": "#1b1713",
-  "icons": []
+  "theme_color": "#356a5b",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
