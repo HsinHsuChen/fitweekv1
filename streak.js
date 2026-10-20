@@ -2,9 +2,17 @@
 (function(root){
  'use strict';
  const DAY_MS=24*60*60*1000;
- const RULE='24h-sunday-rest-unique-training-record';
- const LEGACY_RULE='24h-sunday-rest-unique-training-day';
+ const OFFSET_MS=8*60*60*1000,CUTOFF_MS=3*60*60*1000;
+ const RULE='daily-0300-sunday-rest-unique-training-record';
+ function windowStart(time){return Math.floor((time+OFFSET_MS-CUTOFF_MS)/DAY_MS)*DAY_MS-OFFSET_MS+CUTOFF_MS}
+ function windowDate(time){return taipeiDay(windowStart(time))}
+ function isRestWindow(time){return new Date(windowStart(time)+OFFSET_MS).getUTCDay()===0}
  function deadline(start){
+  let next=windowStart(start)+DAY_MS;
+  while(isRestWindow(next))next+=DAY_MS;
+  return next+DAY_MS;
+ }
+ function legacySundayDeadline(start){
   let cursor=start,remaining=DAY_MS;
   for(let i=0;i<5;i++){
    const shifted=new Date(cursor+8*3600000),nextMidnight=Date.UTC(shifted.getUTCFullYear(),shifted.getUTCMonth(),shifted.getUTCDate()+1)-8*3600000;
@@ -39,10 +47,10 @@
    const key=event.sessionKey||`${event.day||''}|${event.startedAt}`;
    if(seen.has(key))continue;
    seen.add(key);
-   if(lastStartedAt&&event.startedAt>deadline(lastStartedAt))chainCount=0;
+   if(lastStartedAt&&event.startedAt>=deadline(lastStartedAt))chainCount=0;
    chainCount++;lastStartedAt=event.startedAt;lastTrainingDate=event.trainingDate;
   }
-  const expiresAt=lastStartedAt?deadline(lastStartedAt):0,expired=Boolean(expiresAt&&now>expiresAt);
+  const expiresAt=lastStartedAt?deadline(lastStartedAt):0,expired=Boolean(expiresAt&&now>=expiresAt);
   return {count:expired?0:chainCount,chainCount,lastStartedAt,lastTrainingDate,expiresAt,expired};
  }
  function safeUrl(value){
@@ -50,22 +58,24 @@
   return value;
  }
  function snapshot(state,websiteUrl,now=Date.now()){
-  return {schemaVersion:3,rule:RULE,chainCount:state.chainCount,lastStartedAt:state.lastStartedAt,lastTrainingDate:state.lastTrainingDate,expiresAt:state.expiresAt,generatedAt:now,websiteUrl:safeUrl(websiteUrl)};
+  return {schemaVersion:4,rule:RULE,chainCount:state.chainCount,lastStartedAt:state.lastStartedAt,lastTrainingDate:state.lastTrainingDate,expiresAt:state.expiresAt,generatedAt:now,websiteUrl:safeUrl(websiteUrl)};
  }
  function validateSnapshot(value){
   const legacy=value&&value.schemaVersion===1&&value.rule==='24h-unique-training-day';
-  const legacySunday=value&&value.schemaVersion===2&&value.rule===LEGACY_RULE;
-  const current=value&&value.schemaVersion===3&&value.rule===RULE;
-  if(!value||(!legacy&&!legacySunday&&!current)||!Number.isInteger(value.chainCount)||value.chainCount<0||value.chainCount>100000)throw new Error('小工具資料格式不正確');
+  const legacySunday=value&&value.schemaVersion===2&&value.rule==='24h-sunday-rest-unique-training-day';
+  const legacyRecord=value&&value.schemaVersion===3&&value.rule==='24h-sunday-rest-unique-training-record';
+  const current=value&&value.schemaVersion===4&&value.rule===RULE;
+  if(!value||(!legacy&&!legacySunday&&!legacyRecord&&!current)||!Number.isInteger(value.chainCount)||value.chainCount<0||value.chainCount>100000)throw new Error('小工具資料格式不正確');
   const start=timestamp(value.lastStartedAt),generated=timestamp(value.generatedAt);
-  if(!generated||(value.lastStartedAt!==0&&!start)||(start&&(!validDay(value.lastTrainingDate)||value.expiresAt!==(legacy?start+DAY_MS:deadline(start))||generated<start||value.chainCount===0))||(!start&&(value.chainCount!==0||value.expiresAt!==0||value.lastTrainingDate!=='')))throw new Error('小工具時間資料不正確');
-  return {schemaVersion:current?3:2,rule:current?RULE:LEGACY_RULE,chainCount:value.chainCount,lastStartedAt:value.lastStartedAt,lastTrainingDate:value.lastTrainingDate,expiresAt:start?deadline(start):0,generatedAt:generated,websiteUrl:safeUrl(value.websiteUrl)};
+  const expected=start?(current?deadline(start):legacy?start+DAY_MS:legacySundayDeadline(start)):0;
+  if(!generated||(value.lastStartedAt!==0&&!start)||(start&&(!validDay(value.lastTrainingDate)||value.expiresAt!==expected||generated<start||value.chainCount===0))||(!start&&(value.chainCount!==0||value.expiresAt!==0||value.lastTrainingDate!=='')))throw new Error('小工具時間資料不正確');
+  return {schemaVersion:value.schemaVersion,rule:value.rule,chainCount:value.chainCount,lastStartedAt:value.lastStartedAt,lastTrainingDate:value.lastTrainingDate,expiresAt:expected,generatedAt:generated,websiteUrl:safeUrl(value.websiteUrl)};
  }
  function display(snapshotValue,now=Date.now()){
-  const value=validateSnapshot(snapshotValue),requiresSync=value.rule!==RULE,expired=Boolean(value.expiresAt&&now>value.expiresAt);
+  const value=validateSnapshot(snapshotValue),requiresSync=value.rule!==RULE,expired=Boolean(value.expiresAt&&(requiresSync?now>value.expiresAt:now>=value.expiresAt));
   return {count:requiresSync?null:expired?0:value.chainCount,requiresSync,expired,expiresAt:value.expiresAt,lastStartedAt:value.lastStartedAt,lastTrainingDate:value.lastTrainingDate,websiteUrl:value.websiteUrl};
  }
- const api={DAY_MS,taipeiDay,deadline,eventsFromWorkouts,calculate,snapshot,validateSnapshot,display};
+ const api={DAY_MS,taipeiDay,windowStart,windowDate,isRestWindow,deadline,eventsFromWorkouts,calculate,snapshot,validateSnapshot,display};
  if(typeof module==='object'&&module.exports)module.exports=api;
  root.FitWeekStreak=api;
 })(typeof globalThis==='object'?globalThis:this);

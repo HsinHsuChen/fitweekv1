@@ -6,9 +6,17 @@
 (function(root){
  'use strict';
  const DAY_MS=24*60*60*1000;
- const RULE='24h-sunday-rest-unique-training-record';
- const LEGACY_RULE='24h-sunday-rest-unique-training-day';
+ const OFFSET_MS=8*60*60*1000,CUTOFF_MS=3*60*60*1000;
+ const RULE='daily-0300-sunday-rest-unique-training-record';
+ function windowStart(time){return Math.floor((time+OFFSET_MS-CUTOFF_MS)/DAY_MS)*DAY_MS-OFFSET_MS+CUTOFF_MS}
+ function windowDate(time){return taipeiDay(windowStart(time))}
+ function isRestWindow(time){return new Date(windowStart(time)+OFFSET_MS).getUTCDay()===0}
  function deadline(start){
+  let next=windowStart(start)+DAY_MS;
+  while(isRestWindow(next))next+=DAY_MS;
+  return next+DAY_MS;
+ }
+ function legacySundayDeadline(start){
   let cursor=start,remaining=DAY_MS;
   for(let i=0;i<5;i++){
    const shifted=new Date(cursor+8*3600000),nextMidnight=Date.UTC(shifted.getUTCFullYear(),shifted.getUTCMonth(),shifted.getUTCDate()+1)-8*3600000;
@@ -43,10 +51,10 @@
    const key=event.sessionKey||`${event.day||''}|${event.startedAt}`;
    if(seen.has(key))continue;
    seen.add(key);
-   if(lastStartedAt&&event.startedAt>deadline(lastStartedAt))chainCount=0;
+   if(lastStartedAt&&event.startedAt>=deadline(lastStartedAt))chainCount=0;
    chainCount++;lastStartedAt=event.startedAt;lastTrainingDate=event.trainingDate;
   }
-  const expiresAt=lastStartedAt?deadline(lastStartedAt):0,expired=Boolean(expiresAt&&now>expiresAt);
+  const expiresAt=lastStartedAt?deadline(lastStartedAt):0,expired=Boolean(expiresAt&&now>=expiresAt);
   return {count:expired?0:chainCount,chainCount,lastStartedAt,lastTrainingDate,expiresAt,expired};
  }
  function safeUrl(value){
@@ -54,33 +62,35 @@
   return value;
  }
  function snapshot(state,websiteUrl,now=Date.now()){
-  return {schemaVersion:3,rule:RULE,chainCount:state.chainCount,lastStartedAt:state.lastStartedAt,lastTrainingDate:state.lastTrainingDate,expiresAt:state.expiresAt,generatedAt:now,websiteUrl:safeUrl(websiteUrl)};
+  return {schemaVersion:4,rule:RULE,chainCount:state.chainCount,lastStartedAt:state.lastStartedAt,lastTrainingDate:state.lastTrainingDate,expiresAt:state.expiresAt,generatedAt:now,websiteUrl:safeUrl(websiteUrl)};
  }
  function validateSnapshot(value){
   const legacy=value&&value.schemaVersion===1&&value.rule==='24h-unique-training-day';
-  const legacySunday=value&&value.schemaVersion===2&&value.rule===LEGACY_RULE;
-  const current=value&&value.schemaVersion===3&&value.rule===RULE;
-  if(!value||(!legacy&&!legacySunday&&!current)||!Number.isInteger(value.chainCount)||value.chainCount<0||value.chainCount>100000)throw new Error('小工具資料格式不正確');
+  const legacySunday=value&&value.schemaVersion===2&&value.rule==='24h-sunday-rest-unique-training-day';
+  const legacyRecord=value&&value.schemaVersion===3&&value.rule==='24h-sunday-rest-unique-training-record';
+  const current=value&&value.schemaVersion===4&&value.rule===RULE;
+  if(!value||(!legacy&&!legacySunday&&!legacyRecord&&!current)||!Number.isInteger(value.chainCount)||value.chainCount<0||value.chainCount>100000)throw new Error('小工具資料格式不正確');
   const start=timestamp(value.lastStartedAt),generated=timestamp(value.generatedAt);
-  if(!generated||(value.lastStartedAt!==0&&!start)||(start&&(!validDay(value.lastTrainingDate)||value.expiresAt!==(legacy?start+DAY_MS:deadline(start))||generated<start||value.chainCount===0))||(!start&&(value.chainCount!==0||value.expiresAt!==0||value.lastTrainingDate!=='')))throw new Error('小工具時間資料不正確');
-  return {schemaVersion:current?3:2,rule:current?RULE:LEGACY_RULE,chainCount:value.chainCount,lastStartedAt:value.lastStartedAt,lastTrainingDate:value.lastTrainingDate,expiresAt:start?deadline(start):0,generatedAt:generated,websiteUrl:safeUrl(value.websiteUrl)};
+  const expected=start?(current?deadline(start):legacy?start+DAY_MS:legacySundayDeadline(start)):0;
+  if(!generated||(value.lastStartedAt!==0&&!start)||(start&&(!validDay(value.lastTrainingDate)||value.expiresAt!==expected||generated<start||value.chainCount===0))||(!start&&(value.chainCount!==0||value.expiresAt!==0||value.lastTrainingDate!=='')))throw new Error('小工具時間資料不正確');
+  return {schemaVersion:value.schemaVersion,rule:value.rule,chainCount:value.chainCount,lastStartedAt:value.lastStartedAt,lastTrainingDate:value.lastTrainingDate,expiresAt:expected,generatedAt:generated,websiteUrl:safeUrl(value.websiteUrl)};
  }
  function display(snapshotValue,now=Date.now()){
-  const value=validateSnapshot(snapshotValue),requiresSync=value.rule!==RULE,expired=Boolean(value.expiresAt&&now>value.expiresAt);
+  const value=validateSnapshot(snapshotValue),requiresSync=value.rule!==RULE,expired=Boolean(value.expiresAt&&(requiresSync?now>value.expiresAt:now>=value.expiresAt));
   return {count:requiresSync?null:expired?0:value.chainCount,requiresSync,expired,expiresAt:value.expiresAt,lastStartedAt:value.lastStartedAt,lastTrainingDate:value.lastTrainingDate,websiteUrl:value.websiteUrl};
  }
- const api={DAY_MS,taipeiDay,deadline,eventsFromWorkouts,calculate,snapshot,validateSnapshot,display};
+ const api={DAY_MS,taipeiDay,windowStart,windowDate,isRestWindow,deadline,eventsFromWorkouts,calculate,snapshot,validateSnapshot,display};
  if(typeof module==='object'&&module.exports)module.exports=api;
  root.FitWeekStreak=api;
 })(typeof globalThis==='object'?globalThis:this);
 
 
 const THEMES=[
- {bg:['1b1713','3a1d12'],flame:['ec4a1f','ffb02e','fff1a8'],glow:'ff8a1f',title:'e8cdb4',num:'fff8ee',msg:'f6e6d4',sub:'c9a98f',sync:'a98c76'},
- {bg:['170a2a','3b1566'],flame:['8b3df0','c27bff','f6eaff'],glow:'a855f7',title:'d9c2f2',num:'fbf5ff',msg:'eddcfa',sub:'bfa3dc',sync:'a78bc4'},
- {bg:['0a1624','0f3252'],flame:['1f6fe5','4fc3ff','e8fbff'],glow:'38b6ff',title:'b8d9f0',num:'f4fbff',msg:'dcefff',sub:'93b9d6',sync:'7ea3c0'},
- {bg:['0a1a14','10402f'],flame:['16a35c','5eea8f','ebfff2'],glow:'3ddc84',title:'b5dcc7',num:'f3fff8',msg:'d9f5e5',sub:'8fbfa5',sync:'79a58e'},
- {bg:['1f0a14','4a1330'],flame:['e0356b','ff7ca8','fff0f5'],glow:'ff5c8a',title:'efc0d1',num:'fff5f8',msg:'fadce7',sub:'cc9bb0',sync:'b3869a'}
+ {bg:['1b1713','3a1d12'],flame:['ec4a1f','ffb02e','fff1a8'],glow:'ff8a1f',active:'每次累積，都算進步',rest:'休息充電，下次再出發',idle:'新的開始，一樣值得',title:'e8cdb4',num:'fff8ee',msg:'f6e6d4',sub:'c9a98f',sync:'a98c76'},
+ {bg:['170a2a','3b1566'],flame:['8b3df0','c27bff','f6eaff'],glow:'a855f7',active:'一步一步，靠近目標',rest:'留點餘力，走得更遠',idle:'從這一次，重新出發',title:'d9c2f2',num:'fbf5ff',msg:'eddcfa',sub:'bfa3dc',sync:'a78bc4'},
+ {bg:['0a1624','0f3252'],flame:['1f6fe5','4fc3ff','e8fbff'],glow:'38b6ff',active:'照著自己的節奏前進',rest:'放慢腳步，好好恢復',idle:'找回節奏，再次開始',title:'b8d9f0',num:'f4fbff',msg:'dcefff',sub:'93b9d6',sync:'7ea3c0'},
+ {bg:['0a1a14','10402f'],flame:['16a35c','5eea8f','ebfff2'],glow:'3ddc84',active:'穩穩練習，慢慢變強',rest:'恢復，也是進步的一部分',idle:'重新扎根，慢慢累積',title:'b5dcc7',num:'f3fff8',msg:'d9f5e5',sub:'8fbfa5',sync:'79a58e'},
+ {bg:['1f0a14','4a1330'],flame:['e0356b','ff7ca8','fff0f5'],glow:'ff5c8a',active:'願意開始，就很棒了',rest:'照顧自己，也算努力',idle:'給自己一個新的開始',title:'efc0d1',num:'fff5f8',msg:'fadce7',sub:'cc9bb0',sync:'b3869a'}
 ];
 async function main(){
  const fm=FileManager.local(),path=fm.joinPath(fm.documentsDirectory(),'fitweek-streak.json');
@@ -108,17 +118,17 @@ async function main(){
  const number=row.addText(state.requiresSync?'—':String(state.count));number.font=Font.boldSystemFont(53);number.textColor=new Color(T.num);number.minimumScaleFactor=.35;number.lineLimit=1;
  const unit=row.addText('次');unit.font=Font.semiboldSystemFont(14);unit.textColor=new Color(T.title);
  widget.addSpacer();
- const message=widget.addText(problem||(state.requiresSync?'請回網頁重新同步':!value?'先從網頁同步':state.count?(new Date(now+8*3600000).getUTCDay()===0?'週日休息，紀錄保留':'保持你的節奏'):'下一次，重新開始'));
+ const message=widget.addText(problem||(state.requiresSync?'請回網頁重新同步':!value?'先從網頁同步':state.count?(FitWeekStreak.isRestWindow(now)?T.rest:T.active):T.idle));
  message.font=Font.semiboldSystemFont(12);message.textColor=new Color(T.msg);message.lineLimit=1;message.minimumScaleFactor=.7;
  if(state.count&&state.expiresAt){
   const deadline=widget.addText('期限 '+formatTaipei(state.expiresAt));deadline.font=Font.systemFont(10);deadline.textColor=new Color(T.sub);
  }else{
-  const note=widget.addText(value?'週日休息保留':'FitWeek・週日休息保留');note.font=Font.systemFont(10);note.textColor=new Color(T.sub);
+  const note=widget.addText(value?'每日03:00檢查':'FitWeek・每日03:00檢查');note.font=Font.systemFont(10);note.textColor=new Color(T.sub);
  }
  const lastSync=widget.addText(value?'同步 '+formatTaipei(value.generatedAt):'尚未同步');lastSync.font=Font.systemFont(9);lastSync.textColor=new Color(T.sync);
  widget.url=value&&value.websiteUrl?value.websiteUrl:URLScheme.forRunningScript();
  // iOS decides when to actually refresh. The expiry is also printed in the widget.
- widget.refreshAfterDate=new Date(state.count&&state.expiresAt?Math.min(now+15*60*1000,state.expiresAt+1):now+30*60*1000);
+ widget.refreshAfterDate=new Date(state.count&&state.expiresAt?Math.min(now+15*60*1000,state.expiresAt,FitWeekStreak.windowStart(now)+FitWeekStreak.DAY_MS):now+30*60*1000);
  Script.setWidget(widget);
  if(!config.runsInWidget)await widget.presentSmall();
  Script.complete();

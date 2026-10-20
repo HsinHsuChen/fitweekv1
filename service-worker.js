@@ -1,5 +1,5 @@
-const CACHE='training-v2.3.2-weekly-cindy-rest';
-const VERSION='2.3.2';
+const CACHE='training-v2.4.0-weekly-cindy-rest';
+const VERSION='2.4.0';
 const ASSETS=['./','./index.html','./FitWeek-Streak.js','./manifest.json',...['styles.css','app.js','features.js','weekly-weights.js','cindy.js','streak.js','curriculum.json','jszip.min.js'].map(file=>`./${file}?v=${VERSION}`)];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('training-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

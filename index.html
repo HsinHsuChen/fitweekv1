@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1b1713">
 <link rel="manifest" href="./manifest.json">
-<link rel="stylesheet" href="./styles.css?v=2.3.2">
+<link rel="stylesheet" href="./styles.css?v=2.4.0">
 <title>Training System V2</title>
 </head>
 <body>
@@ -33,7 +33,7 @@
       <div class="streak-total"><svg class="streak-flame" viewBox="0 0 64 80" aria-hidden="true"><defs><linearGradient id="fwFlameOuter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a2e"/><stop offset="1" stop-color="#d9361b"/></linearGradient><linearGradient id="fwFlameMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd04a"/><stop offset="1" stop-color="#ff8a1f"/></linearGradient><linearGradient id="fwFlameCore" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8cf"/><stop offset="1" stop-color="#ffe27a"/></linearGradient></defs><path fill="url(#fwFlameOuter)" d="M32 2C34 18 56 28 56 52C56 68 45 78 32 78C19 78 8 68 8 52C8 41 14 34 19 28C20 36 24 40 28 41C24 28 27 14 32 2Z"/><path fill="url(#fwFlameMid)" d="M32 26C34 36 47 42 47 56C47 66 40 73 32 73C24 73 17 66 17 56C17 49 21 44 25 40C26 45 29 47 31 47C29 40 30 32 32 26Z"/><path fill="url(#fwFlameCore)" d="M32 50C33 55 39 58 39 64C39 69 36 71 32 71C28 71 25 69 25 64C25 60 28 56 29 53C30 55 31 56 32 56C32 54 32 52 32 50Z"/></svg><strong id="streakCount" aria-live="polite">0</strong><span>次</span></div>
       <div class="streak-copy"><b>連續訓練</b><div id="streakMessage">正在讀取紀錄…</div><div id="streakDeadline" class="streak-deadline"></div></div>
     </div>
-    <div class="streak-actions"><span>每筆＋1・週日暫停計時</span><button type="button" data-sync-streak disabled>同步到桌面</button></div>
+    <div class="streak-actions"><span>每日03:00檢查・每筆＋1</span><button type="button" data-sync-streak disabled>同步到桌面</button></div>
     <div id="streakSyncStatus" class="streak-sync-status" role="status"></div>
   </section>
 
@@ -187,8 +187,8 @@
       <div class="row"><button id="copyWidgetBtn" type="button">複製小工具程式</button><a class="widget-download" href="./FitWeek-Streak.js" download="FitWeek-Streak.js">下載程式</a><button type="button" class="secondary" data-sync-streak disabled>同步到桌面</button></div>
       <div id="widgetCopyStatus" class="small muted" role="status"></div>
       <textarea id="widgetSource" rows="8" class="hidden widget-source" aria-label="小工具程式碼" readonly></textarea>
-      <p class="small muted">每筆按「完成訓練」儲存且至少完成1組的有效訓練算1次，同一天也可接續；同一訓練重複儲存只算1次。從最新有效紀錄起始時間計24小時，週日暫停計時；休息保留次數、不額外加1。</p>
-      <p class="small muted">例：週六22:00開始，週日休息，接續期限為週一22:00。超過期限顯示0，下一筆重新從1開始；已在週六前中斷的紀錄不會因週日恢復。iOS 桌面刷新可能延後。</p>
+      <p class="small muted">依台灣時間，每天03:00檢查剛結束的24小時區間：有有效訓練就接續，沒有則中斷。每筆按「完成訓練」儲存且至少完成1組的不同訓練各加1次，同區間可累計多次；同一訓練重複儲存只算1次。以訓練起始時間歸屬區間，03:00整算下一區間。</p>
+      <p class="small muted">例：週二上午、週三晚上各練一次，兩個區間都有紀錄就接續算2次。週日03:00～週一03:00為休息區間，不練保留次數；週一03:00～週二03:00仍需有紀錄。中斷後下一筆從1開始。小工具需更新程式並重新同步；iOS桌面刷新可能延後。</p>
     </div>
     <div class="card"><b>資料備份</b><p class="small muted">IndexedDB 不會自動同步到 Git。建議定期匯出 JSON。</p><div class="row"><button id="exportBtn">匯出 JSON</button><label class="secondary file-button">匯入 JSON<input id="importFile" type="file" accept=".json" class="hidden"></label></div></div>
     <div class="card"><b>PWA 安裝</b><p class="small muted">iPhone：Safari 分享 → 加入主畫面。Android：Chrome 選單 → 安裝應用程式／加到主畫面。</p></div>
@@ -202,11 +202,11 @@
   <button class="tab" data-view="historyView">歷史</button>
   <button class="tab" data-view="settingsView">設定</button>
 </nav>
-<script src="./jszip.min.js?v=2.3.2"></script>
-<script src="./streak.js?v=2.3.2"></script>
-<script src="./weekly-weights.js?v=2.3.2"></script>
-<script src="./cindy.js?v=2.3.2"></script>
-<script src="./app.js?v=2.3.2"></script>
-<script src="./features.js?v=2.3.2"></script>
+<script src="./jszip.min.js?v=2.4.0"></script>
+<script src="./streak.js?v=2.4.0"></script>
+<script src="./weekly-weights.js?v=2.4.0"></script>
+<script src="./cindy.js?v=2.4.0"></script>
+<script src="./app.js?v=2.4.0"></script>
+<script src="./features.js?v=2.4.0"></script>
 </body>
 </html>

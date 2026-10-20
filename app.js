@@ -1,6 +1,6 @@
 const $=(s,el=document)=>el.querySelector(s);
 const $$=(s,el=document)=>[...el.querySelectorAll(s)];
-const APP_VERSION='2.3.2';
+const APP_VERSION='2.4.0';
 let curriculum=null,currentDay='A',metroTimer=null,metroWatchdog=null,metroRecoveryTimer=null,metroAudio=null,metroAudioUrl='',metroRunning=false,metroRecovering=false,metroLastTime=-1,metroStallChecks=0,audioCtx=null,workoutStartedAt=null,currentReport='',currentSummaryWorkout=null,restTimer=null,restButton=null;
 const MEAL_LABELS={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'加餐／宵夜'};
 const MAX_PHOTOS_PER_MEAL=2;
@@ -179,10 +179,10 @@ function paintStreak(){
  if(!card)return state;
  $('#streakCount').textContent=String(state.count);
  card.classList.toggle('idle',!state.count);
- $('#streakMessage').textContent=state.count?(new Date(Date.now()+8*3600000).getUTCDay()===0?'週日休息，紀錄保留':'保持你的節奏'):state.expired?'已中斷，下一筆從1開始':'從下一次完成訓練開始';
+ $('#streakMessage').textContent=state.count?(FitWeekStreak.isRestWindow(Date.now())?'週日休息，紀錄保留':'保持你的節奏'):state.expired?'已中斷，下一筆從1開始':'從下一次完成訓練開始';
  $('#streakDeadline').textContent=state.count?`接續期限 ${formatStreakTime(state.expiresAt)}`:state.lastStartedAt?`上次起始 ${formatStreakTime(state.lastStartedAt)}`:'至少完成1組，再按「完成訓練」';
  clearTimeout(streakExpiryTimer);streakExpiryTimer=null;
- if(state.count)streakExpiryTimer=setTimeout(paintStreak,Math.max(1,state.expiresAt-Date.now()+1));
+ if(state.count)streakExpiryTimer=setTimeout(paintStreak,Math.max(1,Math.min(state.expiresAt,FitWeekStreak.windowStart(Date.now())+FitWeekStreak.DAY_MS)-Date.now()));
  return state;
 }
 function renderStreakFromHistory(history){streakEvents=FitWeekStreak.eventsFromWorkouts(history);streakReady=true;$$('[data-sync-streak]').forEach(button=>button.disabled=false);return paintStreak()}
