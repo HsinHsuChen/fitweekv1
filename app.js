@@ -1,6 +1,6 @@
 const $=(s,el=document)=>el.querySelector(s);
 const $$=(s,el=document)=>[...el.querySelectorAll(s)];
-const APP_VERSION='2.5.1';
+const APP_VERSION='2.6.0';
 let curriculum=null,currentDay='A',metroTimer=null,metroWatchdog=null,metroRecoveryTimer=null,metroAudio=null,metroAudioUrl='',metroRunning=false,metroRecovering=false,metroLastTime=-1,metroStallChecks=0,audioCtx=null,workoutStartedAt=null,currentReport='',currentSummaryWorkout=null,restTimer=null,restButton=null;
 const MEAL_LABELS={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'加餐／宵夜'};
 const MAX_PHOTOS_PER_MEAL=6;
@@ -184,6 +184,7 @@ function paintStreak(){
  $('#streakMessage').textContent=state.count?(FitWeekStreak.isRestWindow(Date.now())?'週日休息，紀錄保留':'保持你的節奏'):state.expired?'已中斷，下一筆從1開始':'從下一次完成訓練開始';
  $('#streakDeadline').textContent=state.count?`接續期限 ${formatStreakTime(state.expiresAt)}`:state.lastStartedAt?`上次起始 ${formatStreakTime(state.lastStartedAt)}`:'至少完成1組，再按「完成訓練」';
  clearTimeout(streakExpiryTimer);streakExpiryTimer=null;
+ window.FitWeekNotifications?.refresh(streakEvents);
  if(state.count)streakExpiryTimer=setTimeout(paintStreak,Math.max(1,Math.min(state.expiresAt,FitWeekStreak.windowStart(Date.now())+FitWeekStreak.DAY_MS)-Date.now()));
  return state;
 }
@@ -407,6 +408,7 @@ async function importData(file){
 }
 async function resetAll(){
  if(!confirm('確定清除本裝置全部訓練、飲食與設定？此動作無法復原。'))return;
+ try{await window.FitWeekNotifications?.disconnect()}catch(error){alert('通知尚未停用，暫不清除資料：'+error.message);return}
  clearTimeout(saveTimer);saveTimer=null;await draftSaveChain.catch(()=>{});for(const store of ['workouts','drafts','settings'])await dbClear(store);nutritionLoaded=false;currentDraftKey='';workoutStartedAt=null;sessionMeta={sessionId:'',workoutId:'',completedAt:null,durationMinutes:null};await loadWeeklyWeightPlans();await loadDailyNutrition(localDate(),false);await chooseDay(scheduledDay(),true);await renderHistory();setSaveStatus('本機資料已清除');
 }
 function metroClick(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.12,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.08);o.connect(g).connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+.08)}
@@ -478,7 +480,7 @@ $('#copyWidgetBtn')?.addEventListener('click',copyWidgetProgram);$('#newWorkoutB
 window.addEventListener('load',async()=>{
  if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').then(reg=>reg.update()).catch(()=>{});
  try{
-  updateVisualViewportOffset();await openDB();await loadCurriculum();await setView(localStorage.getItem('activeView')||'todayView');
+  updateVisualViewportOffset();await openDB();await loadCurriculum();await window.FitWeekNotifications?.init();await setView(localStorage.getItem('activeView')||'todayView');
   $('#fatal').classList.add('hidden');preloadWidgetSource().catch(console.error);
  }catch(error){
   console.error(error);const box=$('#fatal');box.classList.remove('hidden');

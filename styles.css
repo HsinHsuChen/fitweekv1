@@ -20,3 +20,15 @@
 .movement-photo-demo figcaption b{display:inline;color:var(--green)}
 .movement-photo-demo [data-fitweek-demo-fallback]{margin:0;padding:16px;background:var(--surface2);color:var(--muted);line-height:1.65}
 .movement-photo-demo [data-fitweek-demo-fallback][hidden]{display:none}
+
+/* v2.6：今日提醒與小工具共用配色。 */
+.training-reminder[hidden]{display:none}
+.training-reminder{background:linear-gradient(125deg,var(--reminder-start),var(--reminder-end));color:var(--reminder-text);padding:18px 20px;border-radius:20px;margin:12px 0 16px;box-shadow:0 5px 20px #21150d12}
+.reminder-top,.reminder-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.reminder-top{font-size:12px;color:var(--reminder-title)}
+.reminder-label{background:#ffffff16;border-radius:14px;padding:4px 9px}
+.reminder-total{margin-top:9px;font-size:16px}.reminder-total strong{font-size:32px;color:var(--reminder-accent);font-variant-numeric:tabular-nums}
+.training-reminder p{margin:6px 0 14px}.reminder-bottom span{font-size:12px;color:var(--reminder-title)}
+.reminder-bottom button{background:#ffffff18;border:1px solid #ffffff35;color:var(--reminder-text);min-height:44px;padding:8px 14px}
+.notification-setup>summary{margin-bottom:12px}.notification-setup label{margin-top:12px}.notification-setup .row{margin-top:12px}.notification-connection{margin:16px 0}.notification-preview{white-space:pre-line;padding:14px;border-radius:12px;background:var(--surface-alt,#f2efe9);font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+@media(max-width:420px){.training-reminder{padding:16px}.reminder-bottom{align-items:flex-start}.reminder-bottom button{margin-left:auto}}
