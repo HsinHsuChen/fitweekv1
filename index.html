@@ -7,7 +7,7 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<link rel="stylesheet" href="./styles.css?v=2.6.0">
+<link rel="stylesheet" href="./styles.css?v=2.7.0">
 <title>FitWeek｜我的訓練紀錄</title>
 </head>
 <body>
@@ -16,7 +16,7 @@
   <div id="fatal" class="card error-box hidden" role="alert">網頁尚未完成載入，請確認更新包已完整發布，再重新整理。</div>
   <details id="streakCard" class="streak-card" aria-label="連續訓練次數">
     <summary><span class="streak-total"><svg class="streak-flame" viewBox="0 0 64 80" aria-hidden="true"><defs><linearGradient id="fwFlameOuter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a2e"/><stop offset="1" stop-color="#d9361b"/></linearGradient><linearGradient id="fwFlameMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd04a"/><stop offset="1" stop-color="#ff8a1f"/></linearGradient></defs><path fill="url(#fwFlameOuter)" d="M32 2C34 18 56 28 56 52C56 68 45 78 32 78C19 78 8 68 8 52C8 41 14 34 19 28C20 36 24 40 28 41C24 28 27 14 32 2Z"/><path fill="url(#fwFlameMid)" d="M32 26C34 36 47 42 47 56C47 66 40 73 32 73C24 73 17 66 17 56C17 49 21 44 25 40C26 45 29 47 31 47C29 40 30 32 32 26Z"/></svg><span>連續訓練 <strong id="streakCount">0</strong> 次</span></span><span class="small muted">紀錄詳情 ⌄</span></summary>
-    <div class="streak-detail"><div id="streakMessage">正在讀取紀錄…</div><div id="streakDeadline" class="small muted"></div><p class="small muted">每日 03:00 檢查，每筆有效訓練加 1 次；週日休息保留紀錄。</p><button type="button" class="secondary" data-sync-streak disabled>同步到桌面小工具</button><div id="streakSyncStatus" class="small" role="status"></div></div>
+    <div class="streak-detail"><div id="streakMessage">正在讀取紀錄…</div><div id="streakDeadline" class="small muted"></div><p class="small muted">每日 03:00 檢查，每筆有效訓練加 1 次；週日休息保留紀錄。</p><button type="button" class="secondary" data-sync-streak disabled>同步小工具與提醒</button><div id="streakSyncStatus" class="small" role="status"></div></div>
   </details>
   <aside id="trainingReminder" class="training-reminder" aria-label="今日訓練提醒" hidden>
     <div class="reminder-top"><span id="reminderTheme"></span><span class="reminder-label">今日待完成</span></div>
@@ -37,7 +37,7 @@
     </div>
     <div id="summaryPanel" class="hidden">
       <div class="completion-hero card"><span class="completion-mark" aria-hidden="true">✓</span><div><div class="eyebrow">SESSION SAVED</div><h1>本筆訓練已儲存</h1><div id="summaryHeadline" class="small muted"></div></div></div><div id="summaryStats" class="summary-stats"></div><div id="prCard" class="card hidden"></div><div id="summaryMealPhotos" class="card hidden"><b>當日餐點照片</b><div id="summaryPhotoGrid" class="summary-photo-grid"></div></div>
-      <button id="shareReportBtn" type="button" class="good full">分享給 ChatGPT</button><details class="card report-options"><summary>完整報告與其他匯出方式</summary><pre id="report" class="report"></pre><div class="row"><button id="copyBtn" type="button" class="secondary">複製文字</button><button id="downloadReportBtn" type="button" class="secondary">下載含照片報告包</button></div></details><div class="summary-actions"><button id="backWorkoutBtn" type="button" class="secondary">返回修改本筆</button><button id="newWorkoutBtn" type="button" class="secondary">開始新一筆訓練</button></div><button type="button" class="text-button full" data-sync-streak disabled>同步到桌面小工具</button>
+      <button id="shareReportBtn" type="button" class="good full">分享給 ChatGPT</button><details class="card report-options"><summary>完整報告與其他匯出方式</summary><pre id="report" class="report"></pre><div class="row"><button id="copyBtn" type="button" class="secondary">複製文字</button><button id="downloadReportBtn" type="button" class="secondary">下載含照片報告包</button></div></details><div class="summary-actions"><button id="backWorkoutBtn" type="button" class="secondary">返回修改本筆</button><button id="newWorkoutBtn" type="button" class="secondary">開始新一筆訓練</button></div><button type="button" class="text-button full" data-sync-streak disabled>同步小工具與提醒</button>
     </div>
   </section>
   <section id="nutritionView" class="view" aria-label="飲食">
@@ -61,26 +61,24 @@
   <section id="settingsView" class="view" aria-label="設定">
     <div class="section-heading"><div><div class="eyebrow">PREFERENCES</div><h1>設定</h1></div><span id="version" class="small muted"></span></div>
     <div class="card"><h2>資料備份</h2><p class="small muted">紀錄保存在這台裝置的瀏覽器。更換手機或清除瀏覽資料前，請先備份。</p><div class="row"><button id="exportBtn" type="button">下載完整備份</button><label class="secondary file-button">還原備份<input id="importFile" type="file" accept=".json" class="sr-only"></label></div><p id="backupStatus" class="small muted" role="status"></p></div>
-    <details class="card notification-setup"><summary><b>訓練提醒與鎖定畫面通知</b></summary>
-      <p id="pushEnabledState" class="small">尚未連接推播服務</p>
-      <p class="small muted">未完成本訓練日的紀錄時顯示網頁提醒；完成後隱藏。週日休息不提醒，每日 03:00 換日。</p>
-      <label for="pushTime">每天提醒時間（台灣時間）<input id="pushTime" type="time" value="19:30"></label><button id="pushSaveTime" type="button" class="secondary">儲存提醒時間</button>
-      <details class="notification-connection"><summary>連接推播服務</summary><p class="small muted">先部署更新包內的推播服務，再填入網址與配對碼。iPhone 請先加入主畫面，從主畫面開啟後設定。</p>
-      <label for="pushService">推播服務網址<input id="pushService" type="url" autocomplete="url" placeholder="https://你的提醒服務網址"></label>
-      <label for="pushPairingCode">配對碼<input id="pushPairingCode" type="password" autocomplete="off" placeholder="由推播服務產生"></label>
-      <div class="row"><button id="pushPrepare" type="button" class="secondary">確認服務連線</button><button id="pushEnable" type="button" disabled>允許並啟用通知</button></div></details>
-      <div class="row"><button id="pushTest" type="button" class="secondary" disabled>發送測試通知</button><button id="pushDisconnect" type="button" class="secondary" disabled>停用通知</button></div>
-      <p id="pushStatus" class="small" role="status"></p><div id="pushPreview" class="notification-preview" aria-label="通知文字預覽"></div>
-      <p class="small muted">通知用色彩符號與激勵語呼應小工具；底色、顯示時機與保留方式由 iOS 決定，不保證常駐。離線完成訓練後，請連線開啟網頁以同步，避免收到舊提醒。</p>
-      <p class="small muted">小工具請更新程式並重新同步一次；之後與網頁依同一訓練日選色。小工具的次數仍需手動同步。</p>
+    <details class="card notification-setup"><summary><b>手機本機提醒（不需伺服器）</b></summary>
+      <p id="localReminderState" class="small"></p><p class="small muted">透過 Scriptable 安排本機通知；不用租主機。每次同步補足七個訓練日區間，跳過週日。</p>
+      <label class="local-reminder-toggle"><input id="localReminderEnabled" type="checkbox" checked>啟用每日訓練提醒</label>
+      <label for="localReminderTime">提醒時間（台灣時間）<input id="localReminderTime" type="time" value="19:30"></label>
+      <div class="row"><button id="localReminderSync" type="button">儲存並同步提醒</button><button id="localReminderTest" type="button" class="secondary">測試通知（10 秒後）</button><button id="localReminderStop" type="button" class="secondary">停用並同步</button></div>
+      <p id="localReminderStatus" class="small" role="status"></p><p id="localReminderNeedsSync" class="small danger-text" role="status"></p><p id="localReminderHandoff" class="small muted"></p>
+      <div id="localReminderPreview" class="notification-preview" aria-label="提醒文字預覽"></div>
+      <p class="small muted">完成運動後，按「同步小工具與提醒」，才能取消手機已排程的當日通知。只儲存網頁不會自動通知 Scriptable。</p>
+      <p class="small muted">請先更新設定下方的 Scriptable 程式，再同步；在 Scriptable 允許通知，並查看排程結果。通知來源為 Scriptable，底色與保留方式由 iOS 決定，不保證常駐。超過七個訓練日未同步，排程會用完。</p>
+      <div id="legacyPushBox" class="legacy-push-box" hidden><b>偵測到舊遠端推播設定</b><p class="small">切換本機提醒前，請先停用舊服務，避免重複通知。不再使用的付費主機與磁碟，請另至平台刪除以停止計費。</p><button id="legacyPushStop" type="button" class="secondary">停用舊遠端推播</button><button id="legacyPushForget" type="button" class="secondary">已刪除主機，移除舊連線</button></div>
     </details>
-    <details class="card widget-setup"><summary><b>iPhone 桌面小工具</b></summary><p class="small muted">完成訓練後按「同步到桌面小工具」，開啟 Scriptable 更新次數。</p><ol class="small"><li><a href="https://apps.apple.com/tw/app/scriptable/id1405459188" target="_blank" rel="noopener">安裝 Scriptable</a>。</li><li>複製下方程式，在 Scriptable 新增並命名為 <b>FitWeek-Streak</b>。</li><li>回到網頁按「同步到桌面小工具」。</li><li>在 iPhone 主畫面加入 Scriptable 小尺寸小工具，選擇 FitWeek-Streak。</li></ol><div class="row"><button id="copyWidgetBtn" type="button" class="secondary">複製小工具程式</button><a class="widget-download" href="./FitWeek-Streak.js" download="FitWeek-Streak.js">下載程式</a><button type="button" class="secondary" data-sync-streak disabled>同步到桌面小工具</button></div><div id="widgetCopyStatus" class="small" role="status"></div><textarea id="widgetSource" rows="8" class="hidden widget-source" aria-label="小工具程式碼" readonly></textarea><p class="small muted">台灣時間每日 03:00 檢查剛結束的 24 小時區間；有有效訓練就接續，沒有則中斷。每筆不同訓練加 1 次，同區間可累計多次；同一訓練重複儲存只算 1 次。以訓練起始時間歸屬區間。</p><p class="small muted">週日 03:00 至週一 03:00 是休息區間，不練保留次數。iOS 小工具刷新可能延後，以最後同步資料為準。</p></details>
+    <details class="card widget-setup"><summary><b>iPhone 桌面小工具</b></summary><p class="small muted">先替換新版程式；完成訓練後按「同步小工具與提醒」，更新次數並取消當日提醒。</p><ol class="small"><li><a href="https://apps.apple.com/tw/app/scriptable/id1405459188" target="_blank" rel="noopener">安裝 Scriptable</a>。</li><li>複製下方程式，在 Scriptable 新增並命名為 <b>FitWeek-Streak</b>。</li><li>回到網頁按「同步小工具與提醒」。</li><li>在 iPhone 主畫面加入 Scriptable 小尺寸小工具，選擇 FitWeek-Streak。</li></ol><div class="row"><button id="copyWidgetBtn" type="button" class="secondary">複製小工具程式</button><a class="widget-download" href="./FitWeek-Streak.js" download="FitWeek-Streak.js">下載程式</a><button type="button" class="secondary" data-sync-streak disabled>同步小工具與提醒</button></div><div id="widgetCopyStatus" class="small" role="status"></div><textarea id="widgetSource" rows="8" class="hidden widget-source" aria-label="小工具程式碼" readonly></textarea><p class="small muted">台灣時間每日 03:00 檢查剛結束的 24 小時區間；有有效訓練就接續，沒有則中斷。每筆不同訓練加 1 次，同區間可累計多次；同一訓練重複儲存只算 1 次。以訓練起始時間歸屬區間。</p><p class="small muted">週日 03:00 至週一 03:00 是休息區間，不練保留次數。iOS 小工具刷新可能延後，以最後同步資料為準。</p></details>
     <details class="card"><summary><b>加入手機主畫面</b></summary><p class="small muted">iPhone：Safari 分享 → 加入主畫面。Android：Chrome 選單 → 安裝應用程式。</p></details>
     <details class="card"><summary><b>更新紀錄</b></summary><div id="changelog"></div></details>
     <details class="card"><summary class="danger-text">清除本機資料</summary><p class="small muted">清除這台裝置上的訓練、飲食與設定，無法復原。建議先下載完整備份。</p><button id="resetBtn" type="button" class="danger">清除全部本機資料</button></details>
   </section>
 </main>
 <nav class="tabs" aria-label="主要功能"><button type="button" class="tab active" data-view="todayView"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8v8M4 9v6M17 8v8M20 9v6M7 12h10"/></svg>訓練</button><button type="button" class="tab" data-view="nutritionView"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v7M8 3v7M5 7h3M6.5 10v11M17 3v18M17 3c-4 3-4 8 0 9"/></svg>飲食</button><button type="button" class="tab" data-view="reviewView"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 16v-5M12 16V5M18 16V9"/></svg>回顧</button><button type="button" class="tab" data-view="settingsView"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-1 3-3 1v4l-2 1 2 1v4l3 1 1 3h6l1-3 3-1v-4l2-1-2-1V7l-3-1-1-3Z"/><circle cx="12" cy="12" r="3"/></svg>設定</button></nav>
-<script src="./jszip.min.js?v=2.6.0"></script><script src="./streak.js?v=2.6.0"></script><script src="./streak-themes.js?v=2.6.0"></script><script src="./notifications.js?v=2.6.0"></script><script src="./weekly-weights.js?v=2.6.0"></script><script src="./cindy.js?v=2.6.0"></script><script src="./exercise-demos.js?v=2.6.0"></script><script src="./app.js?v=2.6.0"></script><script src="./features.js?v=2.6.0"></script><script src="./ui.js?v=2.6.0"></script>
+<script src="./jszip.min.js?v=2.7.0"></script><script src="./streak.js?v=2.7.0"></script><script src="./streak-themes.js?v=2.7.0"></script><script src="./local-reminders.js?v=2.7.0"></script><script src="./notifications.js?v=2.7.0"></script><script src="./weekly-weights.js?v=2.7.0"></script><script src="./cindy.js?v=2.7.0"></script><script src="./exercise-demos.js?v=2.7.0"></script><script src="./app.js?v=2.7.0"></script><script src="./features.js?v=2.7.0"></script><script src="./ui.js?v=2.7.0"></script>
 </body>
 </html>

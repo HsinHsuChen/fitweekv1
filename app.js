@@ -1,6 +1,6 @@
 const $=(s,el=document)=>el.querySelector(s);
 const $$=(s,el=document)=>[...el.querySelectorAll(s)];
-const APP_VERSION='2.6.0';
+const APP_VERSION='2.7.0';
 let curriculum=null,currentDay='A',metroTimer=null,metroWatchdog=null,metroRecoveryTimer=null,metroAudio=null,metroAudioUrl='',metroRunning=false,metroRecovering=false,metroLastTime=-1,metroStallChecks=0,audioCtx=null,workoutStartedAt=null,currentReport='',currentSummaryWorkout=null,restTimer=null,restButton=null;
 const MEAL_LABELS={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'加餐／宵夜'};
 const MAX_PHOTOS_PER_MEAL=6;
@@ -191,17 +191,19 @@ function paintStreak(){
 function renderStreakFromHistory(history){streakEvents=FitWeekStreak.eventsFromWorkouts(history);streakReady=true;$$('[data-sync-streak]').forEach(button=>button.disabled=false);return paintStreak()}
 async function refreshStreak(){return renderStreakFromHistory(await getWorkouts())}
 function widgetPayload(){
- const now=Date.now(),state=FitWeekStreak.calculate(streakEvents,now),url=new URL(window.location.href);url.search='';url.hash='';
- return FitWeekStreak.snapshot(state,url.href,now);
+ const now=Date.now(),state=FitWeekStreak.calculate(streakEvents,now),url=new URL('./',window.location.href);url.search='';url.hash='';
+ return {...FitWeekStreak.snapshot(state,url.href,now),localReminder:window.FitWeekNotifications?.payload()};
 }
-function syncStreakToWidget(){
+async function syncStreakToWidget(options={}){
  const status=$('#streakSyncStatus');
  if(!streakReady){if(status)status.textContent='紀錄正在讀取，完成後再同步。';return}
  try{
-  const payload=JSON.stringify(widgetPayload());
-  if(status)status.textContent='正在開啟 Scriptable；請確認預覽的次數與期限。';
+  await window.FitWeekNotifications?.beforeSync();await refreshStreak();
+  const payload=JSON.stringify({...widgetPayload(),localReminderAction:options.action==='test'?'test':'sync'});
+  await window.FitWeekNotifications?.noteHandoff();
+  if(status)status.textContent='正在開啟 Scriptable；請確認連勝與本機通知排程結果。';
   window.location.href=`scriptable:///run/FitWeek-Streak?payload=${encodeURIComponent(payload)}`;
- }catch(error){console.error(error);if(status)status.textContent='無法開啟同步，請從設定頁確認 Scriptable 已安裝。'}
+ }catch(error){console.error(error);const message=error.message||'請確認 Scriptable 已安裝。';if(status)status.textContent='無法同步：'+message;window.FitWeekNotifications?.syncError(message)}
 }
 async function preloadWidgetSource(){const response=await fetch('./FitWeek-Streak.js',{cache:'no-store'});if(!response.ok)throw new Error('小工具程式載入失敗');widgetSourceText=await response.text()}
 async function copyWidgetProgram(){
@@ -407,9 +409,9 @@ async function importData(file){
  }catch(error){alert('還原失敗：'+error.message)}
 }
 async function resetAll(){
- if(!confirm('確定清除本裝置全部訓練、飲食與設定？此動作無法復原。'))return;
+ if(!confirm('確定清除本裝置全部訓練、飲食與設定？此動作無法復原。\n'+(window.FitWeekNotifications?.resetWarning()||'')))return;
  try{await window.FitWeekNotifications?.disconnect()}catch(error){alert('通知尚未停用，暫不清除資料：'+error.message);return}
- clearTimeout(saveTimer);saveTimer=null;await draftSaveChain.catch(()=>{});for(const store of ['workouts','drafts','settings'])await dbClear(store);nutritionLoaded=false;currentDraftKey='';workoutStartedAt=null;sessionMeta={sessionId:'',workoutId:'',completedAt:null,durationMinutes:null};await loadWeeklyWeightPlans();await loadDailyNutrition(localDate(),false);await chooseDay(scheduledDay(),true);await renderHistory();setSaveStatus('本機資料已清除');
+ clearTimeout(saveTimer);saveTimer=null;await draftSaveChain.catch(()=>{});for(const store of ['workouts','drafts','settings'])await dbClear(store);nutritionLoaded=false;currentDraftKey='';workoutStartedAt=null;sessionMeta={sessionId:'',workoutId:'',completedAt:null,durationMinutes:null};await loadWeeklyWeightPlans();await loadDailyNutrition(localDate(),false);await chooseDay(scheduledDay(),true);await renderHistory();setSaveStatus('本機資料已清除');window.location.reload();
 }
 function metroClick(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.12,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.08);o.connect(g).connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+.08)}
 function writeWavText(view,offset,text){for(let i=0;i<text.length;i++)view.setUint8(offset+i,text.charCodeAt(i))}

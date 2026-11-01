@@ -1,3 +1,5 @@
+> v2.7.0 已改用 Scriptable 本機提醒，請先閱讀 `README-local-reminders-v2.7.0.md`。以下為舊版說明，僅供回溯。
+
 # FitWeek iPhone 桌面小工具｜網頁v2.5.0
 
 網站與桌面小工具共用「每日03:00檢查、每筆訓練加1次」規則。

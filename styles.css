@@ -32,3 +32,7 @@
 .reminder-bottom button{background:#ffffff18;border:1px solid #ffffff35;color:var(--reminder-text);min-height:44px;padding:8px 14px}
 .notification-setup>summary{margin-bottom:12px}.notification-setup label{margin-top:12px}.notification-setup .row{margin-top:12px}.notification-connection{margin:16px 0}.notification-preview{white-space:pre-line;padding:14px;border-radius:12px;background:var(--surface-alt,#f2efe9);font-size:14px;line-height:1.6;overflow-wrap:anywhere}
 @media(max-width:420px){.training-reminder{padding:16px}.reminder-bottom{align-items:flex-start}.reminder-bottom button{margin-left:auto}}
+
+/* v2.7 本機提醒設定。 */
+.local-reminder-toggle{display:flex;align-items:center;gap:10px;min-height:44px}.local-reminder-toggle input{width:20px;min-height:20px;flex:0 0 20px;accent-color:var(--green)}
+.legacy-push-box{margin:16px 0;padding:14px;background:var(--green-soft);border-radius:12px}.legacy-push-box[hidden]{display:none}

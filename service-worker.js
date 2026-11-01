@@ -1,10 +1,10 @@
-const CACHE = 'training-v2.6.0-training-reminders';
-const VERSION = '2.6.0';
+const CACHE = 'training-v2.7.0-local-reminders';
+const VERSION = '2.7.0';
 importScripts('./streak.js?v='+VERSION,'./streak-themes.js?v='+VERSION,'./notification-sw.js?v='+VERSION);
 
 const CORE_FILES = [
   'styles.css', 'app.js', 'features.js', 'ui.js', 'exercise-demos.js',
-  'weekly-weights.js', 'cindy.js', 'streak.js', 'streak-themes.js', 'notifications.js', 'notification-sw.js', 'curriculum.json', 'jszip.min.js'
+  'weekly-weights.js', 'cindy.js', 'streak.js', 'streak-themes.js', 'local-reminders.js', 'notifications.js', 'notification-sw.js', 'curriculum.json', 'jszip.min.js'
 ];
 
 const CORE_ASSETS = [
