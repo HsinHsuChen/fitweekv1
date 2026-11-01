@@ -1,0 +1,17 @@
+{
+  "name": "fitweek-reminders",
+  "version": "2.6.0",
+  "private": true,
+  "description": "FitWeek 個人訓練提醒服務",
+  "engines": {
+    "node": ">=22.9"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.cjs",
+    "keys": "node setup.cjs",
+    "test": "node --test ../test/notifications.test.cjs"
+  },
+  "dependencies": {
+    "web-push": "3.6.7"
+  }
+}
